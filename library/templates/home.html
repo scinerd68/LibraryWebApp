@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Authors</th>
+              <th>Current Quantity</th>
+              <th>Max Quantity</th>
+              <th></th>
+            </tr>
+        </thead>
+        {% for entry in table %}
+        <tbody>
+            <tr>
+                <form action="/borrow" method="POST">
+                    <td>{{ entry[0].id }}</td>
+                    <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
+                    <td>{{ entry[0].title }}</td>
+                    <td>{{ entry[0].category }}</td>
+                    <td>{{ ', '.join(entry[1]) }}</td>
+                    <td>{{ entry[0].current_quantity }}</td>
+                    <td>{{ entry[0].max_quantity }}</td>
+                    <td>
+                        <button type="submit" class="btn">Request</button>
+                    </td>
+                </form> 
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <form action="" method="POST">
+        <div class="input-group">
+            <input type="search" class="form-control rounded" placeholder="Search User ID" aria-label="Search"
+            aria-describedby="search-addon" name="user_id"/>
+            <button type="submit" class="btn btn-outline-primary" name="search_form">Search</button>
+        </div>
+    </form>
+    <br>
+
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Register Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for entry in table %}
+        <tbody>
+            <tr>
+                <form action="" method="POST">
+                    <td>{{ entry[0] }}</td>
+                    <input type="hidden" name="accept_book_id" value="{{ entry[0] }}"/>
+                    <td>{{ entry[1] }}</td>
+                    <td>{{ entry[2] }}</td>
+                    <td>
+                        <button type="submit" class="btn" name="accept_form">Accept</button>
+                    </td>
+                </form>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
