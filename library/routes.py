@@ -7,16 +7,27 @@ from library.models import BorrowHistory, Librarian, User, Book, Author
 from library.utils import role_required, load_user
 
 
-@app.route("/")
-@app.route("/home")
+@app.route("/", methods=["GET", "POST"])
+@app.route("/home", methods=["GET", "POST"])
 def home():
-    books = Book.query.all()
+    return render_template("home.html")
+
+
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    book_name = None
+    if request.method == "POST":
+        book_name = request.form.get('book_name')
+
+    books = []
+    if book_name is not None:
+        books = Book.query.filter(Book.title.contains(book_name)).all()
     authors_all_books = []
     for book in books:
         authors = [author.name for author in book.authors]
         authors_all_books.append(authors)
     table = [(book, authors) for book, authors in zip(books, authors_all_books)]
-    return render_template("home.html", table=table)
+    return render_template("search.html", table=table)
 
 
 @app.route("/login", methods=["GET", "POST"])
