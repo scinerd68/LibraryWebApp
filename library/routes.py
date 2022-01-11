@@ -30,6 +30,13 @@ def search():
     return render_template("search.html", table=table)
 
 
+@app.route("/book/<book_id>")
+def book(book_id):
+    book = Book.query.get(book_id)
+    authors = [author.name for author in book.authors]
+    return render_template("book.html", book=book, authors=authors)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:

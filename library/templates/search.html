@@ -3,8 +3,8 @@
 <div class="grid-container">
     {% for entry in table %}
     <div class="grid-item">
-        <img src="/static/image/placeholder.jpg">
-        <span class="caption"><a href="home"> {{ entry[0].title }} </a></span>
+        <img class="book-image" src="/static/image/placeholder.jpg">
+        <span class="caption"><a href="{{ url_for('book', book_id=entry[0].id) }}"> {{ entry[0].title }} </a></span>
         <form action="/borrow" method="POST">
             <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
             <button type="submit" class="btn">Request</button>

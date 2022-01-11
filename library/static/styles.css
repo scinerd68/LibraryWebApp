@@ -1,9 +1,6 @@
-
 body {
   width: 100%;
   height: 100vh;
-  /* background: url("/static/image/background.jpg") no-repeat center; */
-  /* background-size: cover; */
 }
 
 .grid-container {
@@ -21,22 +18,46 @@ div.grid-item {
   text-align: center;
 }
 
+.book-image {
+  height: 375px;
+  width: 250px;
+}
+
 .caption {
   display: block;
+}
+
+.book-container {
+  display: flex;
+  margin: 15px 20px ;
+}
+
+.image-container {
+  margin: 20px;
+  text-align: center;
+}
+
+.book-image-individual {
+  height: 450px;
+  width: 300px;
+}
+
+.info-container {
+  margin: 20px;
 }
 
 .homepage {
   width: 100%;
   height: 100%;
-  padding: 0px 0px 0px 0px;
-  margin: 0px 0px 0px 0px;
+  padding: 20 20 20 20;
+  margin: 20 20 20 20;
   background: url("/static/image/background.jpg") no-repeat center;
   background-size: cover;
 }
 
-/* .container {
+.container {
   padding: 16px;
-} */
+}
 
 .content-section {
   background: #ffffff;
