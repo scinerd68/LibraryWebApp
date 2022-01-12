@@ -20,11 +20,13 @@ div.grid-item {
 
 .book-image {
   height: 375px;
-  width: 250px;
+  width: 300px;
 }
 
 .caption {
   display: block;
+  padding: 5px;
+  font-size: large;
 }
 
 .book-container {
@@ -40,6 +42,10 @@ div.grid-item {
 .book-image-individual {
   height: 450px;
   width: 300px;
+}
+
+.disabled{
+  pointer-events: none;
 }
 
 .info-container {

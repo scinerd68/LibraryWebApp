@@ -5,14 +5,18 @@
         <img class="book-image-individual" src="/static/image/placeholder.jpg">
         <form action="/borrow" method="POST">
             <input type="hidden" name="book_id" value="{{ book.id }}" />
+            {% if book.current_quantity == 0 %}
+            <button type="submit" class="btn btn-success disabled">Request</button>
+            {% else %}
             <button type="submit" class="btn btn-success">Request</button>
+            {% endif %}
         </form> 
     </div>
     <div class="info-container">
-        <div>Title: {{ book.title.capitalize() }}</div>
+        <div style="font-size: large; text-align: justify;">Title: {{ book.title.capitalize() }}</div>
         <div>Category: {{ book.category }}</div>
         <div>Authors: {{ ', '.join(authors) }}</div>
-        <div>Quantity: {{ book.current_quantity }}</div>
+        <div>Quantity: {{ book.current_quantity }} / {{ book.max_quantity }}</div>
         <div>Description: Lorem ipsum dolor sit amet consectetur adipisicing elit.
              Nesciunt deserunt velit quo in officiis molestias neque rerum suscipit doloremque quis, 
              fugit non sequi consequuntur facilis accusantium accusamus est sed nisi ipsam, 

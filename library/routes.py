@@ -106,21 +106,37 @@ def insert():
 @role_required("user")
 def borrow():
     user = current_user
+    
     if request.method == "POST":
+        requesting_id = [book.book_id for book in BorrowHistory.query.all() if book.status=="requesting" or book.status=="borrowing"]
         register_book_id = request.form.get('book_id')
         if register_book_id != None:
-            borrow = BorrowHistory(book_id=register_book_id, user_id=user.id, register_date=datetime.now())
-            db.session.add(borrow)
-            db.session.commit()
+            register_book_id = int(register_book_id)
+            if register_book_id not in requesting_id:
+                book = Book.query.get(register_book_id)
+                if book.current_quantity == 0:
+                    flash(f"No book available at the moment.", "danger")
+                else:
+                    borrow = BorrowHistory(book_id=register_book_id, user_id=user.id, 
+                                        register_date=datetime.now(), status="requesting")
+                    db.session.add(borrow)
+                    book.current_quantity -= 1
+                    db.session.commit()
+                    flash(f"Book has been requested successfully.", "success")
+            else:
+                flash(f"Book has already been requested or borrowed.", "danger")
         else:
             remove_book_id = request.form.get('remove_book_id')
-            BorrowHistory.query.filter_by(book_id=remove_book_id).delete()
+            BorrowHistory.query.filter_by(book_id=remove_book_id).filter_by(status="requesting").delete()
+            book = Book.query.get(remove_book_id)
+            book.current_quantity += 1
             db.session.commit()
+            flash(f"Undo request successfully", "success")
 
     borrow_entries = BorrowHistory.query.filter_by(user_id=user.id).all()
     table = []
     for entry in borrow_entries:
-        if entry.borrow_date == None:
+        if entry.status == "requesting":
             book_id = entry.book_id
             book = Book.query.get(book_id)
             register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
@@ -136,45 +152,104 @@ def borrow_history():
     borrow_entries = BorrowHistory.query.filter_by(user_id=user.id).all()
     table = []
     for entry in borrow_entries:
-        if entry.borrow_date != None:
-            book_id = entry.book_id
-            book = Book.query.get(book_id)
-            register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
-            table.append((book_id, book.title, register_date_str, entry.borrow_date, entry.return_date))
+        book_id = entry.book_id
+        book = Book.query.get(book_id)
+
+        borrow_date_str = None
+        return_date_str = None
+        register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
+        if entry.borrow_date is not None:
+            borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
+        if entry.return_date is not None:
+            return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
+        table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
+
+    SORT_ORDER = {"requesting" : 0, "borrowing" : 1, "returned" : 2}
+    table.sort(key=lambda entry: SORT_ORDER[entry[5]])
     return render_template("history.html", table=table, title="Borrow History")
 
 
 @app.route("/lend", methods=["GET", "POST"])
 @role_required("librarian")
 def lend():
+    SORT_ORDER = {"requesting" : 0, "borrowing" : 1, "returned" : 2}
     table = []
+    user_id = None
     if request.method == "POST":
         if 'search_form' in request.form:
-            borrow_entries = BorrowHistory.query.filter_by(user_id=request.form.get('user_id'))
+            user_id = request.form.get('user_id')
+            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id)
             for entry in borrow_entries:
-                if entry.borrow_date == None:
-                    book_id = entry.book_id
-                    book = Book.query.get(book_id)
-                    register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
-                    table.append((book_id, book.title, register_date_str))
+                book_id = entry.book_id
+                book = Book.query.get(book_id)
+
+                borrow_date_str = None
+                return_date_str = None
+                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
+                if entry.borrow_date is not None:
+                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
+                if entry.return_date is not None:
+                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
+                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
+            
+            table.sort(key=lambda entry: SORT_ORDER[entry[5]])
+            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
 
         elif 'accept_form' in request.form:
             accept_book_id = request.form.get('accept_book_id')
-            borrow_history = BorrowHistory.query.filter_by(book_id=accept_book_id).first()
+            borrow_history = BorrowHistory.query.filter_by(book_id=accept_book_id).filter_by(status="requesting").first()
             borrow_history.lender_id = current_user.id
             borrow_history.borrow_date = datetime.now()
+            borrow_history.status = "borrowing"
             db.session.commit()
             
-            # TODO: Need to fix user_id
-            borrow_entries = BorrowHistory.query.filter_by(user_id=1)
+            user_id=request.form.get('user_id')
+            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
             for entry in borrow_entries:
-                print(entry.borrow_date)
-                if entry.lender_id == None:
-                    book_id = entry.book_id
-                    book = Book.query.get(book_id)
-                    register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
-                    table.append((book_id, book.title, register_date_str))
-    return render_template("lend.html", table=table, title="Lend Books")
+                book_id = entry.book_id
+                book = Book.query.get(book_id)
+                
+                borrow_date_str = None
+                return_date_str = None
+                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
+                if entry.borrow_date is not None:
+                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
+                if entry.return_date is not None:
+                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
+                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
+            table.sort(key=lambda entry: SORT_ORDER[entry[5]])
+            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
+
+        elif 'return_form' in request.form:    
+            return_book_id = request.form.get('return_book_id')
+            print(return_book_id)
+            book = Book.query.get(return_book_id)
+            book.current_quantity += 1
+            borrow_history = BorrowHistory.query.filter_by(book_id=return_book_id).filter_by(status="borrowing").first()
+            borrow_history.receiver_id = current_user.id
+            borrow_history.return_date = datetime.now()
+            borrow_history.status = "returned"
+            db.session.commit()
+
+            user_id=request.form.get('user_id')
+            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
+            for entry in borrow_entries:
+                book_id = entry.book_id
+                book = Book.query.get(book_id)
+                
+                borrow_date_str = None
+                return_date_str = None
+                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
+                if entry.borrow_date is not None:
+                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
+                if entry.return_date is not None:
+                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
+                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
+            
+            table.sort(key=lambda entry: SORT_ORDER[entry[5]])
+            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
+    
+    return render_template("lend.html", table=table, user=user_id, title="Lend Books")
 
 
 @app.route("/admin")

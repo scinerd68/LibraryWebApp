@@ -1,27 +1,29 @@
 {% extends "layout.html" %}
 {% block content %}
-<table class="table">
-    <thead class="thead-light">
-        <tr>
-            <th>Book ID</th>
-            <th>Title</th>
-            <th>Register Date</th>
-            <th>Borrow Date</th>
-            <th>Return Date</th>
-            <th></th>
-        </tr>
-    </thead>
-    {% for entry in table %}
-    <tbody>
-        <tr>
-            <td>{{ entry[0] }}</td>
-            <input type="hidden" name="remove_book_id" value="{{ entry[0] }}"/>
-            <td>{{ entry[1] }}</td>
-            <td>{{ entry[2] }}</td>
-            <td>{{ entry[3] }}</td>
-            <td>{{ entry[4] }}</td>
-        </tr>
-    </tbody>
-    {% endfor %}
-</table>
+<div class="container">
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Register Date</th>
+                <th>Borrow Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        {% for entry in table %}
+        <tbody>
+            <tr>
+                <td>{{ entry[0] }}</td>
+                <td>{{ entry[1].capitalize() }}</td>
+                <td>{{ entry[2] }}</td>
+                <td>{{ entry[3] }}</td>
+                <td>{{ entry[4] }}</td>
+                <td>{{ entry[5].capitalize() }}</td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+</div>
 {% endblock %}
