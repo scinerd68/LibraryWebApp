@@ -1,3 +1,4 @@
+from email.policy import default
 from flask_login import UserMixin
 from sqlalchemy.orm import backref
 from library import db
@@ -38,9 +39,11 @@ class Book(db.Model):
     __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    current_quantity = db.Column(db.Integer, nullable=False, default=0)
-    max_quantity = db.Column(db.Integer, nullable=False, default=0)
+    current_quantity = db.Column(db.Integer, nullable=False, default=1)
+    max_quantity = db.Column(db.Integer, nullable=False, default=1)
     category = db.Column(db.String(100), nullable=False)
+    image = db.Column(db.String(100), nullable=False, default='placeholder.jpg')
+    description = db.Column(db.String(500))
     authors = db.relationship('Author', secondary=book_author, backref='books', lazy=True)
     borrow = db.relationship('BorrowHistory', backref='borrowed_books', lazy=True)
     

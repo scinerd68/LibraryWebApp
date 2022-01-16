@@ -1,27 +1,32 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="book-container">
-    <div class="image-container">
-        <img class="book-image-individual" src="/static/image/placeholder.jpg">
-        <form action="/borrow" method="POST">
-            <input type="hidden" name="book_id" value="{{ book.id }}" />
-            {% if book.current_quantity == 0 %}
-            <button type="submit" class="btn btn-success disabled">Request</button>
+<div class="container">
+    <div class="book-container">
+        <div class="image-container">
+            <img class="book-image-individual" src="{{ image_file }}">
+            {% if session.get('account_type') == 'librarian' %}
+            <form action="{{ url_for('update_book', book_id=book.id) }}" method="POST">
+                <input type="hidden" name="book_id" value="{{ book.id }}" />
+                <button type="submit" class="btn btn-success">Update</button>
+            </form>
             {% else %}
-            <button type="submit" class="btn btn-success">Request</button>
+            <form action="/borrow" method="POST">
+                <input type="hidden" name="book_id" value="{{ book.id }}" />
+                {% if book.current_quantity == 0 %}
+                <button type="submit" class="btn btn-success disabled">Request</button>
+                {% else %}
+                <button type="submit" class="btn btn-success">Request</button>
+                {% endif %}
+            </form> 
             {% endif %}
-        </form> 
-    </div>
-    <div class="info-container">
-        <div style="font-size: large; text-align: justify;">Title: {{ book.title.capitalize() }}</div>
-        <div>Category: {{ book.category }}</div>
-        <div>Authors: {{ ', '.join(authors) }}</div>
-        <div>Quantity: {{ book.current_quantity }} / {{ book.max_quantity }}</div>
-        <div>Description: Lorem ipsum dolor sit amet consectetur adipisicing elit.
-             Nesciunt deserunt velit quo in officiis molestias neque rerum suscipit doloremque quis, 
-             fugit non sequi consequuntur facilis accusantium accusamus est sed nisi ipsam, 
-             ratione dignissimos repellat ipsa! Quis cumque officiis similique molestiae a maiores cupiditate earum laudantium ipsum,
-             doloribus, itaque dolorum nemo.</div>
-    </div>
+        </div>
+        <div class="info-container">
+            <h1 style="font-size: 50px;">{{ book.title.title() }}</h1>
+            <div>Category: {{ book.category }}</div>
+            <div>Authors: {{ ', '.join(authors) }}</div>
+            <div>Quantity: {{ book.current_quantity }} / {{ book.max_quantity }}</div>
+            <p>Description: {{ book.description }}</p>
+        </div>
+    </div> 
 </div>
 {% endblock %}

@@ -1,3 +1,6 @@
+import os
+import secrets
+from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, session
 from flask_login import login_user, logout_user, current_user
 from datetime import datetime
@@ -11,30 +14,6 @@ from library.utils import role_required, load_user
 @app.route("/home", methods=["GET", "POST"])
 def home():
     return render_template("home.html")
-
-
-@app.route("/search", methods=["GET", "POST"])
-def search():
-    book_name = None
-    if request.method == "POST":
-        book_name = request.form.get('book_name')
-
-    books = []
-    if book_name is not None:
-        books = Book.query.filter(Book.title.contains(book_name)).all()
-    authors_all_books = []
-    for book in books:
-        authors = [author.name for author in book.authors]
-        authors_all_books.append(authors)
-    table = [(book, authors) for book, authors in zip(books, authors_all_books)]
-    return render_template("search.html", table=table)
-
-
-@app.route("/book/<book_id>")
-def book(book_id):
-    book = Book.query.get(book_id)
-    authors = [author.name for author in book.authors]
-    return render_template("book.html", book=book, authors=authors)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -86,20 +65,113 @@ def logout():
     return redirect(url_for("home"))
 
 
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    book_name = None
+    if request.method == "POST":
+        book_name = request.form.get('book_name')
+
+    books = []
+    if book_name is not None:
+        books = Book.query.filter(Book.title.contains(book_name)).all()
+    authors_all_books = []
+    for book in books:
+        authors = [author.name for author in book.authors]
+        authors_all_books.append(authors)
+    table = [(book, authors) for book, authors in zip(books, authors_all_books)]
+    return render_template("search.html", table=table)
+
+
+def save_image(form_image):
+    random_hex = secrets.token_hex(8)
+    _, file_ext = os.path.splitext(form_image.filename)
+    image_file = random_hex + file_ext
+    image_path = os.path.join(app.root_path, 'static/image', image_file)
+
+    output_size = (450, 300)
+    output_image = Image.open(form_image)
+    output_image.thumbnail = output_size
+    output_image.save(image_path)
+    return image_file
+
+
 @app.route("/insert", methods=["GET", "POST"])
 @role_required("librarian")
 def insert():
     form = InsertBookForm()
+    
     if form.validate_on_submit():
         book = Book(title=form.title.data, category=form.category.data, current_quantity=form.added_quantity.data,
-            max_quantity=form.added_quantity.data)
-        author = Author(name=form.author.data)
-        book.authors.append(author)
+            max_quantity=form.added_quantity.data, description=form.description.data)
+        
+        existed_authors_name = [author.name for author in Author.query.all()]
+        for author in form.authors:
+            author_name = author.data.strip().lower()
+            if author_name != '':
+                if author_name not in existed_authors_name:
+                    author = Author(name=author.data)
+                    book.authors.append(author)
+                else:
+                    author = Author.query.filter_by(name=author_name)
+                    book.authors.append(author)
+        if form.image.data:
+            image_file = save_image(form.image.data)
+            book.image = image_file
+
         db.session.add(book)
         db.session.commit()
         flash(f"Book added to database!", "success")
         return redirect(url_for("home"))
-    return render_template("insert.html", form=form)
+    return render_template("insert.html", title="Insert Book", form=form, legend="New Book")
+
+
+@app.route("/book/<book_id>")
+def book(book_id):
+    book = Book.query.get_or_404(book_id)
+    authors = [author.name for author in book.authors]
+    image_file = url_for('static', filename='image/' + book.image)
+    return render_template("book.html", book=book, image_file=image_file, authors=authors)
+
+
+@app.route("/book/<book_id>/update", methods=["GET", "POST"])
+@role_required("librarian")
+def update_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    form = InsertBookForm()
+
+    if form.validate_on_submit():
+        book.title = form.title.data
+        book.category = form.category.data
+        book.description = form.description.data
+        book.current_quantity += form.added_quantity.data
+        book.max_quantity += form.added_quantity.data
+        book.authors = []
+        existed_authors_name = [author.name for author in Author.query.all()]
+        for author in form.authors:
+            author_name = author.data.strip().lower()
+            if author_name != '':
+                if author_name not in existed_authors_name:
+                    author = Author(name=author.data)
+                    book.authors.append(author)
+                else:
+                    author = Author.query.filter_by(name=author_name)
+                    book.authors.append(author)
+        if form.image.data:
+            image_file = save_image(form.image.data)
+            book.image = image_file
+        
+        db.session.commit()
+        flash(f"Book updated!", "success")
+        return redirect(url_for("book", book_id=book.id))
+        
+    form.title.data = book.title
+    form.category.data = book.category
+    form.description.data = book.description
+    for author_field, author in zip(form.authors, book.authors):
+        author_field.data = author.name.strip().title()
+    form.added_quantity.data = 0
+
+    return render_template("insert.html", title="Update Book", form=form, legend="Update Book")
 
 
 @app.route("/borrow", methods=["GET", "POST"])

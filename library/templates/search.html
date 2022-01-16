@@ -1,15 +1,31 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="grid-container">
-    {% for entry in table %}
-    <div class="grid-item">
-        <img class="book-image" src="/static/image/placeholder.jpg">
-        <span class="caption"><a href="{{ url_for('book', book_id=entry[0].id) }}"> {{ entry[0].title.capitalize() }} </a></span>
-        <form action="/borrow" method="POST">
-            <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
-            <button type="submit" class="btn btn-primary">Request</button>
-        </form> 
+
+<div>
+    <div class="title">
+        Search Results
     </div>
-    {% endfor %}
+    <div class="search-separate"></div>
+    <div class="grid-container">
+        {% for entry in table %}
+        <div class="grid-item">
+            <a href="{{ url_for('book', book_id=entry[0].id) }}">
+                <img class="book-image" src="{{ url_for('static', filename='image/' + entry[0].image) }}">
+                <span class="caption"> {{ entry[0].title.title() }} </span>
+            </a>
+            {% if session.get('account_type') == 'librarian' %}
+            <form action="{{ url_for('update_book', book_id=entry[0].id) }}" method="POST">
+                <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
+                <button type="submit" class="btn btn-success">Update</button>
+            </form>
+            {% else %}
+            <form action="/borrow" method="POST">
+                <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
+                <button type="submit" class="btn btn-primary">Request</button>
+            </form>
+            {% endif %} 
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

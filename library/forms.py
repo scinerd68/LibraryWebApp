@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from flask_wtf.file import FileField, FileAllowed
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, FieldList, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from library.models import User
 
@@ -39,6 +40,8 @@ class LoginForm(FlaskForm):
 class InsertBookForm(FlaskForm):
     title = StringField("Title")
     category = StringField("Category")
-    author = StringField("Author")
-    added_quantity = IntegerField("Number of books to add")
-    submit = SubmitField("Add")
+    authors = FieldList(StringField("Author"), min_entries=3, max_entries=3)
+    description = TextAreaField('Description', validators=[DataRequired()])
+    added_quantity = IntegerField("Number of books to add/remove")
+    image = FileField('Update Book Cover', validators=[FileAllowed(['jpg', 'png'])])
+    submit = SubmitField("Submit")
