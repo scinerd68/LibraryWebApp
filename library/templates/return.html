@@ -18,9 +18,24 @@
                     {{ form.borrow_date(class="form-control form-control-lg") }}       
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" onchange="changeFine(event)">
                     {{ form.return_status.label(class="form-control-label") }}                 
                     {{ form.return_status(class="form-control form-control-lg") }}       
+                </div>
+
+                <div class="form-group" >
+                    {{ form.damage_fine.label(class="form-control-label") }}                 
+                    {{ form.damage_fine(class="form-control form-control-lg") }}       
+                </div>
+
+                <div class="form-group">
+                    {{ form.late_status.label(class="form-control-label") }}                 
+                    {{ form.late_status(class="form-control form-control-lg") }}       
+                </div>
+
+                <div class="form-group" >
+                    {{ form.late_fine.label(class="form-control-label") }}                 
+                    {{ form.late_fine(class="form-control form-control-lg") }}       
                 </div>
 
             </fieldset>
@@ -30,4 +45,21 @@
         </form>
     </div>
 </div>
+
+<script>
+    function changeFine(e) {
+        let status = e.target.value;
+        let fine = parseInt(document.getElementById("damage_fine").value);
+        if (status === "Normal") {
+            fine = 0;
+        }
+        else if (status === "Light Damage") {
+            fine = 100000;
+        }
+        else {
+            fine = 300000;
+        }
+        document.getElementById("damage_fine").value = fine;
+    }
+</script>
 {% endblock %}

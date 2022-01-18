@@ -1,11 +1,9 @@
-from cgi import print_environ
 import os
 import secrets
-from time import process_time_ns
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, session
 from flask_login import login_user, logout_user, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 from library import app, db, bcrypt
 from library.forms import RegistrationForm, LoginForm, InsertBookForm, ReturnBookForm
 from library.models import BorrowHistory, Librarian, User, Book, Author
@@ -67,6 +65,11 @@ def logout():
     logout_user()
     session.clear()
     return redirect(url_for("home"))
+
+
+@app.route("/account")
+def account():
+    return render_template("account.html")
 
 
 @app.route("/search", methods=["GET", "POST"])
@@ -328,51 +331,56 @@ def return_book():
             form.user_id.data = user_id
             form.title.data = book.title.title()
             form.borrow_date.data = history.borrow_date
+            form.damage_fine.data = 0
+
+            expected_return_date = history.borrow_date + timedelta(days=-1)
+            time_difference = (datetime.now() - expected_return_date).days
+            if time_difference <= 0:
+                form.late_status.data = "Not Late"
+                form.late_fine.data = 0
+            else:
+                num_late_date = time_difference
+                form.late_status.data = "Late " + str(num_late_date) + " days"
+                form.late_fine.data = 10000 * num_late_date
+
             return render_template("return.html", form=form, title="Return Book")
         
         elif form.validate_on_submit:
-            if form.return_status.data == "Normal":
-                book_id = form.book_id.data
-                user_id = form.user_id.data
-                book = Book.query.get(book_id)
+            book_id = form.book_id.data
+            user_id = form.user_id.data
+            book = Book.query.get(book_id)
+            user = User.query.get(user_id)
+            
+            history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=book_id).filter_by(status="borrowing").first()
+            history.receiver_id = current_user.id
+            history.return_date = datetime.now()
+            history.status = "returned"
+             
+            user.balance -= (form.damage_fine.data + form.late_fine.data)
+            if form.return_status.data == "Normal" or form.return_status.data == "Light Damage":
                 book.current_quantity += 1
-                history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=book_id).filter_by(status="borrowing").first()
-                history.receiver_id = current_user.id
-                history.return_date = datetime.now()
-                history.status = "returned"
-                db.session.commit()
-                flash("Book returned succesfully", "success")
-                return redirect(url_for("lend"))
-
-            elif form.return_status.data == "Light Damage":
-                book_id = form.book_id.data
-                user_id = form.user_id.data
-                book = Book.query.get(book_id)
-                book.current_quantity += 1
-                user = User.query.get(user_id)
-                user.balance -= 100000
-                history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=book_id).filter_by(status="borrowing").first()
-                history.receiver_id = current_user.id
-                history.return_date = datetime.now()
-                history.status = "returned"
-                db.session.commit()
-                flash("Book returned succesfully", "success")
-                return redirect(url_for("lend"))
-
-            elif form.return_status.data == "Heavy Damage" or form.return_status.data == "Lost":
-                book_id = form.book_id.data
-                user_id = form.user_id.data
-                book = Book.query.get(book_id)
-                book.max_quantity -= 1
-                user = User.query.get(user_id)
-                user.balance -= 300000
-                history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=book_id).filter_by(status="borrowing").first()
-                history.receiver_id = current_user.id
-                history.return_date = datetime.now()
-                history.status = "returned"
-                db.session.commit()
-                flash("Book returned succesfully", "success")
-                return redirect(url_for("lend"))
+            else:
+                book.max_quanitity -= 1
+            
+            db.session.commit()
+            flash("Book returned succesfully", "success")
+            return redirect(url_for("lend"))
 
         else:
             return redirect(url_for("lend"))
+
+
+"""
+TODO:
+- Handle logic when return book late [x]
+- Add fine field to return form [x]
+- Add route for user account contain username, email, balance, info
+- Send email when balance < 300000
+- Add route to allow librarian recharge balance for user
+- Statistics
+- Handle request book expire after 2 days (optional)
+- Activate user account (optional)
+- Improve GUI
+- Reorganize using Blueprint
+- Handle error in insert form
+"""

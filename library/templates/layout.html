@@ -46,6 +46,11 @@
                 </form>
 
                 {% if current_user.is_authenticated %}
+                    {% if session['account_type'] == 'librarian' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for("account") }}">Account</a>
+                        </li>
+                    {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for("logout") }}">Logout</a>
                 </li>

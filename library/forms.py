@@ -1,3 +1,4 @@
+from tkinter.tix import Select
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField,\
@@ -54,5 +55,8 @@ class ReturnBookForm(FlaskForm):
     title = StringField("Title", render_kw={'readonly': True})
     borrow_date = DateTimeField("Borrow Date", render_kw={'readonly': True}, format="%d/%m/%Y %H:%M")
     return_status = SelectField("Book status", choices=["Normal", "Light Damage", "Heavy Damage", "Lost"])
-    late_date = StringField("Late Status", render_kw={'readonly': True})
+    late_status = StringField("Late Status", render_kw={'readonly': True})
+    damage_fine = IntegerField("Damage Fine", render_kw={'readonly': True})
+    late_fine = IntegerField("Late Fine", render_kw={'readonly': True})
+    # fine = SelectField("Fine", choices=[])
     submit = SubmitField("Return")
