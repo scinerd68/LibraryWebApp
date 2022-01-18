@@ -54,4 +54,5 @@ class ReturnBookForm(FlaskForm):
     title = StringField("Title", render_kw={'readonly': True})
     borrow_date = DateTimeField("Borrow Date", render_kw={'readonly': True}, format="%d/%m/%Y %H:%M")
     return_status = SelectField("Book status", choices=["Normal", "Light Damage", "Heavy Damage", "Lost"])
+    late_date = StringField("Late Status", render_kw={'readonly': True})
     submit = SubmitField("Return")

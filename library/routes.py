@@ -25,12 +25,12 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         if form.librarian.data == True:
+            print("librarian")
             user = Librarian.query.filter_by(email=form.email.data).first()
             session['account_type'] = 'librarian'
         else:
             user = User.query.filter_by(email=form.email.data).first()
             session['account_type'] = 'user'
-        print(session)
         if user is not None and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             print("User's status:", user.is_authenticated)
@@ -39,7 +39,9 @@ def login():
                 return redirect(next_page)
             return redirect(url_for("home"))
         else:
+            session.clear()
             flash("Login unsuccessful. Check email and password", "danger")
+            return redirect(url_for("login"))
     
     return render_template("login2.html", form=form, title="Login")
 
@@ -315,10 +317,8 @@ def lend():
 def return_book():
     form = ReturnBookForm()
     if request.method == "POST":
-        print("here")
         if 'return_form' in request.form:
             return_book_id = request.form.get('return_book_id')
-            print(return_book_id)
             book = Book.query.get(return_book_id)
             user_id = request.form.get('user_id')
             history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=return_book_id).filter_by(status="borrowing").first()
