@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, FieldList, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField,\
+    IntegerField, FieldList, TextAreaField, DateTimeField, HiddenField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from library.models import User
 
@@ -45,3 +46,12 @@ class InsertBookForm(FlaskForm):
     added_quantity = IntegerField("Number of books to add/remove")
     image = FileField('Update Book Cover', validators=[FileAllowed(['jpg', 'png'])])
     submit = SubmitField("Submit")
+
+
+class ReturnBookForm(FlaskForm):
+    book_id = HiddenField()
+    user_id = HiddenField()
+    title = StringField("Title", render_kw={'readonly': True})
+    borrow_date = DateTimeField("Borrow Date", render_kw={'readonly': True}, format="%d/%m/%Y %H:%M")
+    return_status = SelectField("Book status", choices=["Normal", "Light Damage", "Heavy Damage", "Lost"])
+    submit = SubmitField("Return")

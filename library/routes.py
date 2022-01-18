@@ -1,11 +1,13 @@
+from cgi import print_environ
 import os
 import secrets
+from time import process_time_ns
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, session
 from flask_login import login_user, logout_user, current_user
 from datetime import datetime
 from library import app, db, bcrypt
-from library.forms import RegistrationForm, LoginForm, InsertBookForm
+from library.forms import RegistrationForm, LoginForm, InsertBookForm, ReturnBookForm
 from library.models import BorrowHistory, Librarian, User, Book, Author
 from library.utils import role_required, load_user
 
@@ -67,18 +69,19 @@ def logout():
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
-    book_name = None
+    table = []
     if request.method == "POST":
         book_name = request.form.get('book_name')
+        books = []
+        if book_name is not None:
+            books = Book.query.filter(Book.title.contains(book_name)).all()
+        authors_all_books = []
+        for book in books:
+            authors = [author.name for author in book.authors]
+            authors_all_books.append(authors)
+        table = [(book, authors) for book, authors in zip(books, authors_all_books)]
+        return render_template("search.html", table=table)
 
-    books = []
-    if book_name is not None:
-        books = Book.query.filter(Book.title.contains(book_name)).all()
-    authors_all_books = []
-    for book in books:
-        authors = [author.name for author in book.authors]
-        authors_all_books.append(authors)
-    table = [(book, authors) for book, authors in zip(books, authors_all_books)]
     return render_template("search.html", table=table)
 
 
@@ -199,11 +202,22 @@ def borrow():
                 flash(f"Book has already been requested or borrowed.", "danger")
         else:
             remove_book_id = request.form.get('remove_book_id')
-            BorrowHistory.query.filter_by(book_id=remove_book_id).filter_by(status="requesting").delete()
-            book = Book.query.get(remove_book_id)
-            book.current_quantity += 1
+            num_book_delete = BorrowHistory.query.filter_by(book_id=remove_book_id).filter_by(status="requesting").delete()
+            if num_book_delete > 0:
+                book = Book.query.get(remove_book_id)
+                book.current_quantity += 1
             db.session.commit()
             flash(f"Undo request successfully", "success")
+
+        borrow_entries = BorrowHistory.query.filter_by(user_id=user.id).all()
+        table = []
+        for entry in borrow_entries:
+            if entry.status == "requesting":
+                book_id = entry.book_id
+                book = Book.query.get(book_id)
+                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
+                table.append((book_id, book.title, register_date_str))
+        return render_template("borrow.html", table=table, title="Borrow")
 
     borrow_entries = BorrowHistory.query.filter_by(user_id=user.id).all()
     table = []
@@ -236,15 +250,15 @@ def borrow_history():
             return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
         table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
 
-    SORT_ORDER = {"requesting" : 0, "borrowing" : 1, "returned" : 2}
-    table.sort(key=lambda entry: SORT_ORDER[entry[5]])
+    SORT_ORDER = {"requesting" : 2, "borrowing" : 1, "returned" : 0}
+    table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
     return render_template("history.html", table=table, title="Borrow History")
 
 
 @app.route("/lend", methods=["GET", "POST"])
 @role_required("librarian")
 def lend():
-    SORT_ORDER = {"requesting" : 0, "borrowing" : 1, "returned" : 2}
+    SORT_ORDER = {"requesting" : 2, "borrowing" : 1, "returned" : 0}
     table = []
     user_id = None
     if request.method == "POST":
@@ -264,23 +278,24 @@ def lend():
                     return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
                 table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
             
-            table.sort(key=lambda entry: SORT_ORDER[entry[5]])
+            table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
             return render_template("lend.html", table=table, user=user_id, title="Lend Books")
 
         elif 'accept_form' in request.form:
             accept_book_id = request.form.get('accept_book_id')
-            borrow_history = BorrowHistory.query.filter_by(book_id=accept_book_id).filter_by(status="requesting").first()
+            user_id = request.form.get('user_id')
+            borrow_history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=accept_book_id).filter_by(status="requesting").first()
+            if borrow_history is None:
+                return redirect(url_for("home"))
             borrow_history.lender_id = current_user.id
             borrow_history.borrow_date = datetime.now()
             borrow_history.status = "borrowing"
             db.session.commit()
             
-            user_id=request.form.get('user_id')
             borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
             for entry in borrow_entries:
                 book_id = entry.book_id
                 book = Book.query.get(book_id)
-                
                 borrow_date_str = None
                 return_date_str = None
                 register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
@@ -289,42 +304,75 @@ def lend():
                 if entry.return_date is not None:
                     return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
                 table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
-            table.sort(key=lambda entry: SORT_ORDER[entry[5]])
-            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
-
-        elif 'return_form' in request.form:    
-            return_book_id = request.form.get('return_book_id')
-            print(return_book_id)
-            book = Book.query.get(return_book_id)
-            book.current_quantity += 1
-            borrow_history = BorrowHistory.query.filter_by(book_id=return_book_id).filter_by(status="borrowing").first()
-            borrow_history.receiver_id = current_user.id
-            borrow_history.return_date = datetime.now()
-            borrow_history.status = "returned"
-            db.session.commit()
-
-            user_id=request.form.get('user_id')
-            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
-            for entry in borrow_entries:
-                book_id = entry.book_id
-                book = Book.query.get(book_id)
-                
-                borrow_date_str = None
-                return_date_str = None
-                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
-                if entry.borrow_date is not None:
-                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
-                if entry.return_date is not None:
-                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
-                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
-            
-            table.sort(key=lambda entry: SORT_ORDER[entry[5]])
+            table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
             return render_template("lend.html", table=table, user=user_id, title="Lend Books")
     
     return render_template("lend.html", table=table, user=user_id, title="Lend Books")
 
 
-@app.route("/admin")
+@app.route("/return", methods=["POST"])
 @role_required("librarian")
-def admin():
-    return "admin"
+def return_book():
+    form = ReturnBookForm()
+    if request.method == "POST":
+        print("here")
+        if 'return_form' in request.form:
+            return_book_id = request.form.get('return_book_id')
+            print(return_book_id)
+            book = Book.query.get(return_book_id)
+            user_id = request.form.get('user_id')
+            history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=return_book_id).filter_by(status="borrowing").first()
+            if history is None:
+                return redirect(url_for("home"))
+            form.book_id.data = return_book_id
+            form.user_id.data = user_id
+            form.title.data = book.title.title()
+            form.borrow_date.data = history.borrow_date
+            return render_template("return.html", form=form, title="Return Book")
+        
+        elif form.validate_on_submit:
+            if form.return_status.data == "Normal":
+                book_id = form.book_id.data
+                user_id = form.user_id.data
+                book = Book.query.get(book_id)
+                book.current_quantity += 1
+                history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=book_id).filter_by(status="borrowing").first()
+                history.receiver_id = current_user.id
+                history.return_date = datetime.now()
+                history.status = "returned"
+                db.session.commit()
+                flash("Book returned succesfully", "success")
+                return redirect(url_for("lend"))
+
+            elif form.return_status.data == "Light Damage":
+                book_id = form.book_id.data
+                user_id = form.user_id.data
+                book = Book.query.get(book_id)
+                book.current_quantity += 1
+                user = User.query.get(user_id)
+                user.balance -= 100000
+                history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=book_id).filter_by(status="borrowing").first()
+                history.receiver_id = current_user.id
+                history.return_date = datetime.now()
+                history.status = "returned"
+                db.session.commit()
+                flash("Book returned succesfully", "success")
+                return redirect(url_for("lend"))
+
+            elif form.return_status.data == "Heavy Damage" or form.return_status.data == "Lost":
+                book_id = form.book_id.data
+                user_id = form.user_id.data
+                book = Book.query.get(book_id)
+                book.max_quantity -= 1
+                user = User.query.get(user_id)
+                user.balance -= 300000
+                history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=book_id).filter_by(status="borrowing").first()
+                history.receiver_id = current_user.id
+                history.return_date = datetime.now()
+                history.status = "returned"
+                db.session.commit()
+                flash("Book returned succesfully", "success")
+                return redirect(url_for("lend"))
+
+        else:
+            return redirect(url_for("lend"))

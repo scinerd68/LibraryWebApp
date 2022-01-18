@@ -10,48 +10,49 @@
     </form>
     <br>
     
-    <form action="" method="POST">
-        <div>User No: {{ user }}</div>
-        <input type="hidden" name="user_id" value="{{ user }}"/>
-        <table class="table table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th>Book ID</th>
-                    <th>Title</th>
-                    <th>Register Date</th>
-                    <th>Borrow Date</th>
-                    <th>Return Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            {% for entry in table %}
-            <tbody>
-                <tr>
-                    <td>{{ entry[0] }}</td>
-                    <input type="hidden" name="accept_book_id" value="{{ entry[0] }}"/>
-                    <td>{{ entry[1] }}</td>
-                    <td>{{ entry[2] }}</td>
-                    <td>{{ entry[3] }}</td>
-                    <td>{{ entry[4] }}</td>
-                    <td>{{ entry[5].capitalize() }}</td>
-                    {% if entry[5] == "requesting" %}
+    <div>User No: {{ user }}</div>
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Register Date</th>
+                <th>Borrow Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        {% for entry in table %}
+        <tbody>
+            <tr>
+                <td>{{ entry[0] }}</td>
+                <!-- <input type="hidden" name="accept_book_id" value="{{ entry[0] }}"/> -->
+                <td>{{ entry[1] }}</td>
+                <td>{{ entry[2] }}</td>
+                <td>{{ entry[3] }}</td>
+                <td>{{ entry[4] }}</td>
+                <td>{{ entry[5].capitalize() }}</td>
+                {% if entry[5] == "requesting" %}
+                <form action="" method="POST">
                     <td>
+                        <input type="hidden" name="user_id" value="{{ user }}"/>
+                        <input type="hidden" name="accept_book_id" value="{{ entry[0] }}"/>
                         <button type="submit" class="btn" name="accept_form">Accept</button>
                     </td>
-                    {% elif entry[5] == "borrowing" %}
-                    <form action="" method="POST">
-                        <td>
-                            <input type="hidden" name="user_id" value="{{ user }}"/>
-                            <input type="hidden" name="return_book_id" value="{{ entry[0] }}"/>
-                            <button type="submit" class="btn" name="return_form">Return</button>
-                        </td>
-                    </form>
-                    {% endif %}
-                </tr>
-            </tbody>
-            {% endfor %}
-        </table>
-    </form>
+                </form>
+                {% elif entry[5] == "borrowing" %}
+                <form action="/return" method="POST">
+                    <td>
+                        <input type="hidden" name="user_id" value="{{ user }}"/>
+                        <input type="hidden" name="return_book_id" value="{{ entry[0] }}"/>
+                        <button type="submit" class="btn" name="return_form">Return</button>
+                    </td>
+                </form>
+                {% endif %}
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
 </div>
 {% endblock %}

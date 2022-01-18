@@ -19,7 +19,7 @@
                 <form action="" method="POST">
                     <td>{{ entry[0] }}</td>
                     <input type="hidden" name="remove_book_id" value="{{ entry[0] }}"/>
-                    <td>{{ entry[1].capitalize() }}</td>
+                    <td>{{ entry[1].title() }}</td>
                     <td>{{ entry[2] }}</td>
                     <td>
                         <button type="submit" class="btn">Remove</button>

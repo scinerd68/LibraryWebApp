@@ -20,19 +20,20 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{{ url_for("home") }}">Home <span class="sr-only">(current)</span></a>
                 </li>
+                {% if session['account_type'] == 'librarian' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for("lend") }}">Lend and Return Book</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for("insert") }}">Insert Book</a>
+                </li>
+                {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for("borrow") }}">Requesting Books</a>
                 </li>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for("borrow_history") }}">Borrow History</a>
-                </li>
-                {% if session['account_type'] == 'librarian' %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("lend") }}">Lend Book</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("insert") }}">Insert Book</a>
                 </li>
                 {% endif %}
             </ul>
