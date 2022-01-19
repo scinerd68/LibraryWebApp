@@ -399,7 +399,7 @@ TODO:
 - Add fine field to return form [x]
 - Add route for user account contain username, email, balance, info [x]
 - Add favorite book to account gui [x]
-- Handle error in insert form
+- Handle error in insert form [x]
 - Send email when balance < 300000
 - Add route to allow librarian recharge balance for user
 - Statistics

@@ -14,10 +14,7 @@
                 <span class="caption"> {{ entry[0].title.title() }} </span>
             </a>
             {% if session.get('account_type') == 'librarian' %}
-            <form action="{{ url_for('update_book', book_id=entry[0].id) }}" method="POST">
-                <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
-                <button type="submit" class="btn btn-success">Update</button>
-            </form>
+            <a href="{{ url_for('update_book', book_id=entry[0].id) }}" class="btn btn-success">Update</a>
             {% else %}
             <form action="/borrow" method="POST">
                 <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
