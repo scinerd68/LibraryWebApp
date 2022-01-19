@@ -1,9 +1,10 @@
 from tkinter.tix import Select
+from tokenize import Number
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SubmitField,\
     IntegerField, FieldList, TextAreaField, DateTimeField, HiddenField, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from library.models import User
 
 
@@ -42,11 +43,12 @@ class LoginForm(FlaskForm):
 
 
 class InsertBookForm(FlaskForm):
-    title = StringField("Title")
-    category = StringField("Category")
+    title = StringField("Title", validators=[DataRequired()])
+    category = StringField("Category", validators=[DataRequired()])
     authors = FieldList(StringField("Author"), min_entries=3, max_entries=3)
     description = TextAreaField('Description', validators=[DataRequired()])
-    added_quantity = IntegerField("Number of books to add/remove")
+    added_quantity = IntegerField("Number of books to add", validators=[NumberRange(min=0)])
+    remove_quantity = IntegerField("Number of books to remove", validators=[NumberRange(min=0)])
     image = FileField('Update Book Cover', validators=[FileAllowed(['jpg', 'png'])])
     submit = SubmitField("Submit")
 
@@ -60,5 +62,4 @@ class ReturnBookForm(FlaskForm):
     late_status = StringField("Late Status", render_kw={'readonly': True})
     damage_fine = IntegerField("Damage Fine", render_kw={'readonly': True})
     late_fine = IntegerField("Late Fine", render_kw={'readonly': True})
-    # fine = SelectField("Fine", choices=[])
     submit = SubmitField("Return")

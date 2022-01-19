@@ -160,13 +160,21 @@ def book(book_id):
 def update_book(book_id):
     book = Book.query.get_or_404(book_id)
     form = InsertBookForm()
-
+    
     if form.validate_on_submit():
+        if book.max_quantity - form.remove_quantity.data < 0:
+            flash("Too many book to be removed", "danger")
+            return redirect(url_for("update_book", book_id=book_id))
+        else:
+            book.current_quantity -= form.remove_quantity.data
+            book.max_quantity -= form.remove_quantity.data
+
         book.title = form.title.data
         book.category = form.category.data
         book.description = form.description.data
         book.current_quantity += form.added_quantity.data
         book.max_quantity += form.added_quantity.data
+
         book.authors = []
         existed_authors_name = [author.name for author in Author.query.all()]
         for author in form.authors:
@@ -192,8 +200,9 @@ def update_book(book_id):
     for author_field, author in zip(form.authors, book.authors):
         author_field.data = author.name.strip().title()
     form.added_quantity.data = 0
+    form.remove_quantity.data = 0
 
-    return render_template("insert.html", title="Update Book", form=form, legend="Update Book")
+    return render_template("update_book.html", title="Update Book", form=form, legend="Update Book")
 
 
 @app.route("/borrow", methods=["GET", "POST"])

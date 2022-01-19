@@ -46,7 +46,7 @@
                 <div class="form-group">
                     {{ form.description.label(class="form-control-label") }}                 
                     {% if form.description.errors %}
-                        {{ form.description(class="form-control form-control-lg is-invalid") }}
+                        {{ form.description(class="form-control form-control-lg is-invalid description") }}
                         <div class="invalid-feedback">
                             {% for error in form.description.errors %}
                                 <span>{{ error }} </span>
@@ -68,6 +68,20 @@
                         </div>
                     {% else %}
                         {{ form.added_quantity(class="form-control form-control-lg") }}
+                    {% endif %}        
+                </div>
+
+                <div class="form-group">
+                    {{ form.remove_quantity.label(class="form-control-label") }}                 
+                    {% if form.remove_quantity.errors %}
+                        {{ form.remove_quantity(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.remove_quantity.errors %}
+                                <span>{{ error }} </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.remove_quantity(class="form-control form-control-lg") }}
                     {% endif %}        
                 </div>
 
