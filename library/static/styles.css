@@ -126,3 +126,8 @@ div.grid-item:hover {
 .description {
   font-size: 16px;
 }
+
+.account-img {
+  height: 100px;
+  width: 100px;
+}

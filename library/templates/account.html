@@ -1,11 +1,34 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="content-section">
-    <div class="media">
-    <div class="media-body">
-        <h2 class="account-heading">{{ current_user.username }}</h2>
-        <p class="text-secondary">{{ current_user.email }}</p>
-    </div>
+<div class="container">
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle account-img" src="{{ url_for('static', filename='image/profile.jpg') }}">
+            <div class="media-body">
+                <h2 class="account-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
+                <hr>
+                <p class="text-secondary">Username: {{ current_user.username }}</p>
+                <p class="text-secondary">Email: {{ current_user.email }}</p>
+                <p>Balance: {{ current_user.balance }}</p>
+            </div>
+        </div>
+        <hr>
+        <div>
+            <h2 class="account-heading" style="margin-left: 20px;">Favorite Book</h2>
+            {% if book != None %}
+                <div class="book-container">
+                    <img class="book-image-individual" src="{{ url_for('static', filename='image/' + book.image) }}">
+                    <div class="info-container">
+                        <h1 style="font-size: 50px;"> {{ book.title.title() }} </h1>
+                        <div> Category: {{ book.category }} </div>
+                        <div> Authors:  {{ ''.join(authors) }}</div>
+                        <p> Description: {{ book.description }}</p>
+                    </div>
+                </div> 
+            {% else %}
+                <div style="position: relative; left: 500px">No data yet</div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

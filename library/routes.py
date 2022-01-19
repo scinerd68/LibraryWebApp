@@ -1,5 +1,6 @@
 import os
 import secrets
+from collections import Counter
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, session
 from flask_login import login_user, logout_user, current_user
@@ -51,7 +52,8 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hash_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hash_password)
+        user = User(username=form.username.data, email=form.email.data, first_name=form.first_name.data,
+                    last_name=form.last_name.data, password=hash_password)
         db.session.add(user)
         db.session.commit()
         flash(f"Your account has been created! You can now login.", "success")
@@ -68,8 +70,20 @@ def logout():
 
 
 @app.route("/account")
+@role_required("user")
 def account():
-    return render_template("account.html")
+    borrow_history = BorrowHistory.query.with_entities(BorrowHistory.book_id).\
+                    filter_by(user_id=current_user.id).all()
+    if len(borrow_history) != 0:
+        count_book = Counter(borrow_history)
+        most_borrowed_book_id = max(count_book, key=count_book.get)[0]
+        book = Book.query.get(most_borrowed_book_id)
+        authors = [author.name for author in book.authors]
+    else: 
+        book = None
+        authors = None
+
+    return render_template("account.html", book=book, authors=authors, current_user=current_user)
 
 
 @app.route("/search", methods=["GET", "POST"])
@@ -333,7 +347,7 @@ def return_book():
             form.borrow_date.data = history.borrow_date
             form.damage_fine.data = 0
 
-            expected_return_date = history.borrow_date + timedelta(days=-1)
+            expected_return_date = history.borrow_date + timedelta(days=14)
             time_difference = (datetime.now() - expected_return_date).days
             if time_difference <= 0:
                 form.late_status.data = "Not Late"
@@ -374,7 +388,9 @@ def return_book():
 TODO:
 - Handle logic when return book late [x]
 - Add fine field to return form [x]
-- Add route for user account contain username, email, balance, info
+- Add route for user account contain username, email, balance, info [x]
+- Add favorite book to account gui [x]
+- Handle error in insert form
 - Send email when balance < 300000
 - Add route to allow librarian recharge balance for user
 - Statistics
@@ -382,5 +398,5 @@ TODO:
 - Activate user account (optional)
 - Improve GUI
 - Reorganize using Blueprint
-- Handle error in insert form
+
 """

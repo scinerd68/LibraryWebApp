@@ -7,7 +7,7 @@ db.create_all()
 
 password = 'test'
 hash_password = bcrypt.generate_password_hash(password).decode('utf-8')
-user = User(username='test', email='test@gmail.com', password=hash_password)
+user = User(username='test', email='test@gmail.com', first_name="John", last_name="Smith", password=hash_password)
 db.session.add(user)
 
 admin_password = 'test_admin'
