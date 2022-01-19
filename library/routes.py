@@ -393,6 +393,49 @@ def return_book():
             return redirect(url_for("lend"))
 
 
+
+@app.route("/user", methods={"GET", "POST"})
+@role_required("librarian")
+def user_account():
+    book = None
+    user = None
+    if request.method == "POST":
+        if 'search_form' in request.form:
+            user_id = request.form.get('user_id')
+            user = User.query.get(user_id)
+            borrow_history = BorrowHistory.query.with_entities(BorrowHistory.book_id).\
+                    filter_by(user_id=user_id).all()
+            if len(borrow_history) != 0:
+                count_book = Counter(borrow_history)
+                most_borrowed_book_id = max(count_book, key=count_book.get)[0]
+                book = Book.query.get(most_borrowed_book_id)
+                authors = [author.name for author in book.authors]
+            else: 
+                book = None
+                authors = None
+            return render_template('user.html', user=user, book=book, authors=authors)
+
+        elif 'recharge' in request.form:
+            user_id = request.form.get('user_id')
+            user = User.query.get(user_id)
+            user.balance = 800000
+            db.session.commit()
+            user = User.query.get(user_id)
+            borrow_history = BorrowHistory.query.with_entities(BorrowHistory.book_id).\
+                    filter_by(user_id=user_id).all()
+            if len(borrow_history) != 0:
+                count_book = Counter(borrow_history)
+                most_borrowed_book_id = max(count_book, key=count_book.get)[0]
+                book = Book.query.get(most_borrowed_book_id)
+                authors = [author.name for author in book.authors]
+            else: 
+                book = None
+                authors = None
+            return render_template('user.html', user=user, book=book, authors=authors)
+
+    return render_template('user.html', book=book, user=user)
+
+
 """
 TODO:
 - Handle logic when return book late [x]
@@ -401,7 +444,7 @@ TODO:
 - Add favorite book to account gui [x]
 - Handle error in insert form [x]
 - Send email when balance < 300000
-- Add route to allow librarian recharge balance for user
+- Add route to allow librarian recharge balance for user [x]
 - Statistics
 - Handle request book expire after 2 days (optional)
 - Activate user account (optional)

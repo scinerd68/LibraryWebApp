@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <form action="" method="POST">
+        <div class="input-group">
+            <input type="search" class="form-control rounded" placeholder="Search User ID" aria-label="Search"
+            aria-describedby="search-addon" name="user_id"/>
+            <button type="submit" class="btn btn-outline-primary" name="search_form">Search</button>
+        </div>
+    </form>
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle account-img" src="{{ url_for('static', filename='image/profile.jpg') }}">
+            <div class="media-body">
+                <h2 class="account-heading">{{ user.first_name }} {{ user.last_name }}</h2>
+                <hr>
+                <p class="text-secondary">Username: {{ user.username }}</p>
+                <p class="text-secondary">Email: {{ user.email }}</p>
+                <p>Balance: {{ user.balance }}</p>
+                <form action="" method="POST">
+                    <input type="hidden" name="user_id" value="{{ user.id }}"/>
+                    <button type="submit" class="btn" name="recharge">Recharge Account</button>
+                </form>
+            </div>
+        </div>
+        <hr>
+        <div>
+            <h2 class="account-heading" style="margin-left: 20px;">Favorite Book</h2>
+            {% if book != None %}
+                <div class="book-container">
+                    <img class="book-image-individual" src="{{ url_for('static', filename='image/' + book.image) }}">
+                    <div class="info-container">
+                        <h1 style="font-size: 50px;"> {{ book.title.title() }} </h1>
+                        <div> Category: {{ book.category }} </div>
+                        <div> Authors:  {{ ''.join(authors) }}</div>
+                        <p> Description: {{ book.description }}</p>
+                    </div>
+                </div> 
+            {% else %}
+                <div style="position: relative; left: 500px">No data yet</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
