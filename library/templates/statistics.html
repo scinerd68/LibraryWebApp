@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container" style="display:flex; flex-direction: column;">
-    <h1 class="stats-header" style="font-size: 40px;">Total Borrow Turns last 30 days: {{ total_borrowed_turns }}</h1>
-    <h1 class="stats-header">Most Popular last 30 days</h1>
+    <h1 class="stats-header" style="font-size: 40px;">Total borrow turns last 30 days: {{ total_borrowed_turns }}</h1>
+    <h1 class="stats-header">Most popular last 30 days</h1>
     <div style="border: 0.3px solid;"></div>
     <div>
         {% for book in most_borrowed_books %}
@@ -15,7 +15,7 @@
         </div>
         {% endfor %}
     </div>
-    <h1 class="stats-header">Least Popular last 30 days</h1>
+    <h1 class="stats-header">Least popular last 30 days</h1>
     <div style="border: 0.3px solid;"></div>
     <div>
         {% for book in least_borrowed_books %}
@@ -28,7 +28,7 @@
         </div>
         {% endfor %}
     </div>
-    <h1 class="stats-header">Category Count last 30 days</h1>
+    <h1 class="stats-header">Category count last 30 days</h1>
     <div style="border: 0.3px solid;"></div>
     <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
     <script>
