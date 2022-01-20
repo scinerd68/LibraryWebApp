@@ -9,12 +9,12 @@
     <div class="grid-container search-position">
         {% for entry in table %}
         <div class="grid-item">
-            <a href="{{ url_for('book', book_id=entry[0].id) }}">
+            <a href="{{ url_for('books.book', book_id=entry[0].id) }}">
                 <img class="book-image" src="{{ url_for('static', filename='image/' + entry[0].image) }}">
                 <span class="caption"> {{ entry[0].title.title() }} </span>
             </a>
             {% if session.get('account_type') == 'librarian' %}
-            <a href="{{ url_for('update_book', book_id=entry[0].id) }}" class="btn btn-success">Update</a>
+            <a href="{{ url_for('books.update_book', book_id=entry[0].id) }}" class="btn btn-success">Update</a>
             {% else %}
             <form action="/borrow" method="POST">
                 <input type="hidden" name="book_id" value="{{ entry[0].id }}" />

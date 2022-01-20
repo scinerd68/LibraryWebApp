@@ -18,34 +18,34 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for("home") }}">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{{ url_for("main.home") }}">Home <span class="sr-only">(current)</span></a>
                 </li>
                 {% if session['account_type'] == 'librarian' %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("lend") }}">Lend and Return Book</a>
+                    <a class="nav-link" href="{{ url_for("borrows.lend") }}">Lend and Return Book</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("insert") }}">Insert Book</a>
+                    <a class="nav-link" href="{{ url_for("books.insert") }}">Insert Book</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("user_account") }}">Manage User</a>
+                    <a class="nav-link" href="{{ url_for("users.user_account") }}">Manage User</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("statistics") }}">Statistics</a>
+                    <a class="nav-link" href="{{ url_for("main.statistics") }}">Statistics</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("borrow") }}">Requesting Books</a>
+                    <a class="nav-link" href="{{ url_for("borrows.borrow") }}">Requesting Books</a>
                 </li>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("borrow_history") }}">Borrow History</a>
+                    <a class="nav-link" href="{{ url_for("borrows.borrow_history") }}">Borrow History</a>
                 </li>
                 {% endif %}
             </ul>
             
             <ul class="navbar-nav">
-                <form action="{{ url_for('search') }}" method="POST" class="form-inline my-2 my-lg-0">
+                <form action="{{ url_for('main.search') }}" method="POST" class="form-inline my-2 my-lg-0">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"
                     name="book_name">
                     <button class="btn btn-success my-2 my-sm-0" type="submit">Search</button>
@@ -54,18 +54,18 @@
                 {% if current_user.is_authenticated %}
                     {% if session['account_type'] == 'user' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for("account") }}">Account</a>
+                            <a class="nav-link" href="{{ url_for("users.account") }}">Account</a>
                         </li>
                     {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("logout") }}">Logout</a>
+                    <a class="nav-link" href="{{ url_for("users.logout") }}">Logout</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("login") }}">Login</a>
+                    <a class="nav-link" href="{{ url_for("users.login") }}">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for("register") }}">Register</a>
+                    <a class="nav-link" href="{{ url_for("users.register") }}">Register</a>
                 </li>
                 {% endif %}
             </ul>    
