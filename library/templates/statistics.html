@@ -28,5 +28,46 @@
         </div>
         {% endfor %}
     </div>
+    <h1 class="stats-header">Category Count last 30 days</h1>
+    <div style="border: 0.3px solid;"></div>
+    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+    <script>
+        var xValues = {{ category|tojson }};
+        var yValues = {{ category_count|tojson }};
+        var barColors = {{ colors|tojson }};
+
+        new Chart("myChart", {
+            type: "bar",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                    display: true,
+                    text: "Category Count",
+                    fontSize: 20
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        ticks: {
+                            fontSize: 18
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }                
+            }
+        });
+    </script>
 </div>
 {% endblock %}

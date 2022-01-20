@@ -1,6 +1,7 @@
 import os
 import secrets
 from collections import Counter
+from unicodedata import category
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, session
 from flask_login import login_user, logout_user, current_user
@@ -442,6 +443,8 @@ def statistics():
     all_books = Book.query.with_entities(Book.id).all() 
     all_books_borrowed = BorrowHistory.query.with_entities(BorrowHistory.book_id)\
               .filter(BorrowHistory.register_date > (datetime.now() - timedelta(days=30))).all()
+
+    # Query most and least popular books
     total_borrowed_turns = len(all_books_borrowed)
     book_counter = Counter(all_books_borrowed)
     sorted_book_counter = sorted(book_counter, key=book_counter.get, reverse=True)
@@ -452,8 +455,16 @@ def statistics():
     if len(least_borrowed_books) < 4:
         num_missing_item = 4 - len(least_borrowed_books)
         least_borrowed_books += [(Book.query.get(id[0]), book_counter[id]) for id in sorted_book_counter[::-1][:num_missing_item]]
+
+    # Query category
+    all_category = [Book.query.filter_by(id=id[0]).with_entities(Book.category).first()[0] for id in all_books_borrowed]
+    category_counter = Counter(all_category)
+    category = list(category_counter.keys())
+    category_count = list(category_counter.values())
+    colors = ["green"] * len(category)
     return render_template('statistics.html', most_borrowed_books=most_borrowed_books, total_borrowed_turns=total_borrowed_turns,
-                            least_borrowed_books=least_borrowed_books, title="Library Statistics")
+                            least_borrowed_books=least_borrowed_books, category=category,
+                            category_count=category_count, colors=colors, title="Library Statistics")
 
 
 """
