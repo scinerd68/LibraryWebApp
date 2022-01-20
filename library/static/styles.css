@@ -8,10 +8,13 @@ a {
   color: black;
 }
 
-.grid-container {
+.search-position {
   position: absolute;
   left: 70px;
   top: 115px;
+}
+
+.grid-container {
   display: grid;
   grid-template-columns: auto auto auto auto;
   padding: 10px;
@@ -22,7 +25,7 @@ div.grid-item {
   display: inline-block;
   padding: 20px;
   text-align: center;
-  max-width: 250px;
+  max-width: 270px;
 }
 
 div.grid-item:hover {
@@ -130,4 +133,9 @@ div.grid-item:hover {
 .account-img {
   height: 100px;
   width: 100px;
+}
+
+.stats-header {
+  font-family:'Sergei UI', sans-serif;
+  font-size: 30px;
 }

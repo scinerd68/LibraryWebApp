@@ -436,6 +436,26 @@ def user_account():
     return render_template('user.html', book=book, user=user)
 
 
+@app.route("/statistics")
+@role_required("librarian")
+def statistics():
+    all_books = Book.query.with_entities(Book.id).all() 
+    all_books_borrowed = BorrowHistory.query.with_entities(BorrowHistory.book_id)\
+              .filter(BorrowHistory.register_date > (datetime.now() - timedelta(days=30))).all()
+    total_borrowed_turns = len(all_books_borrowed)
+    book_counter = Counter(all_books_borrowed)
+    sorted_book_counter = sorted(book_counter, key=book_counter.get, reverse=True)
+    most_borrowed_books = [(Book.query.get(id[0]), book_counter[id]) for id in sorted_book_counter[:4]]
+
+    not_bororwed_books = list(set(all_books) - set(all_books_borrowed))
+    least_borrowed_books = [(Book.query.get(id[0]), 0) for id in not_bororwed_books]
+    if len(least_borrowed_books) < 4:
+        num_missing_item = 4 - len(least_borrowed_books)
+        least_borrowed_books += [(Book.query.get(id[0]), book_counter[id]) for id in sorted_book_counter[::-1][:num_missing_item]]
+    return render_template('statistics.html', most_borrowed_books=most_borrowed_books, total_borrowed_turns=total_borrowed_turns,
+                            least_borrowed_books=least_borrowed_books, title="Library Statistics")
+
+
 """
 TODO:
 - Handle logic when return book late [x]
@@ -445,10 +465,11 @@ TODO:
 - Handle error in insert form [x]
 - Send email when balance < 300000
 - Add route to allow librarian recharge balance for user [x]
-- Statistics
+- Statistics [x]
 - Handle request book expire after 2 days (optional)
 - Activate user account (optional)
 - Improve GUI
 - Reorganize using Blueprint
+- Consider add decline function when borrow book
 
 """

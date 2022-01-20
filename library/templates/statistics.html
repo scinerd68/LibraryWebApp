@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container" style="display:flex; flex-direction: column;">
+    <h1 class="stats-header" style="font-size: 40px;">Total Borrow Turns last 30 days: {{ total_borrowed_turns }}</h1>
+    <h1 class="stats-header">Most Popular last 30 days</h1>
+    <div style="border: 0.3px solid;"></div>
+    <div>
+        {% for book in most_borrowed_books %}
+        <div class="grid-item">
+            <a href="{{ url_for('book', book_id=book[0].id) }}">
+                <img class="book-image" src="{{ url_for('static', filename='image/' + book[0].image) }}">
+                <span class="caption"> {{ book[0].title.title() }} </span>
+            </a>
+            <div>No. Borrowed Turns: {{ book[1] }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <h1 class="stats-header">Least Popular last 30 days</h1>
+    <div style="border: 0.3px solid;"></div>
+    <div>
+        {% for book in least_borrowed_books %}
+        <div class="grid-item">
+            <a href="{{ url_for('book', book_id=book[0].id) }}">
+                <img class="book-image" src="{{ url_for('static', filename='image/' + book[0].image) }}">
+                <span class="caption"> {{ book[0].title.title() }} </span>
+            </a>
+            <div>No. Borrowed Turns: {{ book[1] }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
