@@ -17,10 +17,25 @@
                 <p class="text-secondary">Username: {{ user.username }}</p>
                 <p class="text-secondary">Email: {{ user.email }}</p>
                 <p>Balance: {{ user.balance }}</p>
-                <form action="" method="POST">
-                    <input type="hidden" name="user_id" value="{{ user.id }}"/>
-                    <button type="submit" class="btn" name="recharge">Recharge Account</button>
-                </form>
+                {% if user != None %}
+                <div style="display: flex;">
+                    <form style="padding-right: 5px;" action="" method="POST">
+                        <input type="hidden" name="user_id" value="{{ user.id }}"/>
+                        <button type="submit" class="btn" name="recharge">Recharge Account</button>
+                    </form>
+                    {% if user.activated == False %}
+                    <form action="" method="POST">
+                        <input type="hidden" name="user_id" value="{{ user.id }}"/>
+                        <button type="submit" class="btn" name="activate">Activate</button>
+                    </form>
+                    {% else %}
+                    <form action="" method="POST">
+                        <input type="hidden" name="user_id" value="{{ user.id }}"/>
+                        <button type="submit" class="btn" name="deactivate">Deactivate</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
         <hr>

@@ -15,9 +15,15 @@ def borrow():
     user = current_user
     
     if request.method == "POST":
+        if not user.activated:
+            flash("Need to activate account to borrow books. Come to library to request activation.")
+            return redirect(url_for("main.home"))
         requesting_id = [book.book_id for book in BorrowHistory.query.all() if book.status=="requesting" or book.status=="borrowing"]
         register_book_id = request.form.get('book_id')
         if register_book_id != None:
+            if len(requesting_id) == 3:
+                flash("Can only borrow maximum 3 books a time.")
+                return redirect(url_for("main.home"))
             register_book_id = int(register_book_id)
             if register_book_id not in requesting_id:
                 book = Book.query.get(register_book_id)
@@ -29,7 +35,7 @@ def borrow():
                     db.session.add(borrow)
                     book.current_quantity -= 1
                     db.session.commit()
-                    flash(f"Book has been requested successfully.", "success")
+                    flash(f"Book has been requested successfully. Please return book after 14 days.", "success")
             else:
                 flash(f"Book has already been requested or borrowed.", "danger")
         else:

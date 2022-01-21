@@ -117,4 +117,38 @@ def user_account():
                 authors = None
             return render_template('user.html', user=user, book=book, authors=authors)
 
+        elif 'activate' in request.form:
+            user_id = request.form.get('user_id')
+            user = User.query.get(user_id)
+            user.activated = True
+            db.session.commit()
+            borrow_history = BorrowHistory.query.with_entities(BorrowHistory.book_id).\
+                    filter_by(user_id=user_id).all()
+            if len(borrow_history) != 0:
+                count_book = Counter(borrow_history)
+                most_borrowed_book_id = max(count_book, key=count_book.get)[0]
+                book = Book.query.get(most_borrowed_book_id)
+                authors = [author.name for author in book.authors]
+            else: 
+                book = None
+                authors = None
+            return render_template('user.html', user=user, book=book, authors=authors)
+
+        elif 'deactivate' in request.form:
+            user_id = request.form.get('user_id')
+            user = User.query.get(user_id)
+            user.activated = False
+            db.session.commit()
+            borrow_history = BorrowHistory.query.with_entities(BorrowHistory.book_id).\
+                    filter_by(user_id=user_id).all()
+            if len(borrow_history) != 0:
+                count_book = Counter(borrow_history)
+                most_borrowed_book_id = max(count_book, key=count_book.get)[0]
+                book = Book.query.get(most_borrowed_book_id)
+                authors = [author.name for author in book.authors]
+            else: 
+                book = None
+                authors = None
+            return render_template('user.html', user=user, book=book, authors=authors)
+
     return render_template('user.html', book=book, user=user)
