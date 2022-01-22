@@ -1,7 +1,7 @@
 body {
   width: 100%;
   height: 100vh;
-  background-color: #EDF5E1;
+  background-color: #ffffff;
 }
 
 a {
@@ -138,4 +138,12 @@ div.grid-item:hover {
 .stats-header {
   font-family:'Sergei UI', sans-serif;
   font-size: 30px;
+}
+
+.no-search-data {
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
 }

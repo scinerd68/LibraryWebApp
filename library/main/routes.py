@@ -30,6 +30,7 @@ def search():
 
     return render_template("search.html", table=table)
 
+
 @main.route("/statistics")
 @role_required("librarian")
 def statistics():
@@ -54,7 +55,7 @@ def statistics():
     category_counter = Counter(all_category)
     category = list(category_counter.keys())
     category_count = list(category_counter.values())
-    colors = ["green"] * len(category)
+    colors = ["LightSkyBlue"] * len(category)
     return render_template('statistics.html', most_borrowed_books=most_borrowed_books, total_borrowed_turns=total_borrowed_turns,
                             least_borrowed_books=least_borrowed_books, category=category,
                             category_count=category_count, colors=colors, title="Library Statistics")

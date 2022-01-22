@@ -6,23 +6,29 @@
         Search Results
     </div>
     <div class="search-separate"></div>
-    <div class="grid-container search-position">
-        {% for entry in table %}
-        <div class="grid-item">
-            <a href="{{ url_for('books.book', book_id=entry[0].id) }}">
-                <img class="book-image" src="{{ url_for('static', filename='image/' + entry[0].image) }}">
-                <span class="caption"> {{ entry[0].title.title() }} </span>
-            </a>
-            {% if session.get('account_type') == 'librarian' %}
-            <a href="{{ url_for('books.update_book', book_id=entry[0].id) }}" class="btn btn-success">Update</a>
-            {% else %}
-            <form action="/borrow" method="POST">
-                <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
-                <button type="submit" class="btn btn-success">Request</button>
-            </form>
-            {% endif %} 
+    {% if table|length > 0 %}
+        <div class="grid-container search-position">
+            {% for entry in table %}
+            <div class="grid-item">
+                <a href="{{ url_for('books.book', book_id=entry[0].id) }}">
+                    <img class="book-image" src="{{ url_for('static', filename='image/' + entry[0].image) }}">
+                    <span class="caption"> {{ entry[0].title.title() }} </span>
+                </a>
+                {% if session.get('account_type') == 'librarian' %}
+                <a href="{{ url_for('books.update_book', book_id=entry[0].id) }}" class="btn btn-success">Update</a>
+                {% else %}
+                <form action="/borrow" method="POST">
+                    <input type="hidden" name="book_id" value="{{ entry[0].id }}" />
+                    <button type="submit" class="btn btn-success">Request</button>
+                </form>
+                {% endif %} 
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+    {% else %}
+    <div class="container search-position no-search-data">
+        <div><i>Sorry, can't find any books with given name</i></div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
