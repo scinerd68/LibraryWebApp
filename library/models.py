@@ -1,6 +1,4 @@
-from email.policy import default
 from flask_login import UserMixin
-from sqlalchemy.orm import backref
 from library import db
 
 
