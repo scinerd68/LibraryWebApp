@@ -1,30 +1,32 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <table class="table table-bordered">
+    <div class="table-title">Requesting Books</div>
+    <hr style="margin: 0; padding: 5px;">
+    <table class="table table-bordered table-custom">
         <thead class="thead-light">
             <tr>
-                <th>Book ID</th>
-                <th>Title</th>
-                <th>Register Date</th>
+                <th class="col-2">Book ID</th>
+                <th class="col-4">Title</th>
+                <th class="col-7">Register Date</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             {% if table|length == 0 %}
-            <tr><td colspan="4" style="text-align: center;font-size: large;">NO DATA</td></tr>
+            <tr><td colspan="4" style="text-align: center;font-size: large;">NO REQUESTING BOOKS YET</td></tr>
             {% endif %}
             {% for entry in table %}
             <tr>
-                <form action="" method="POST">
-                    <td>{{ entry[0] }}</td>
-                    <input type="hidden" name="remove_book_id" value="{{ entry[0] }}"/>
-                    <td>{{ entry[1].title() }}</td>
-                    <td>{{ entry[2] }}</td>
-                    <td>
+                <td>{{ entry[0] }}</td>
+                <td>{{ entry[1].title() }}</td>
+                <td>{{ entry[2] }}</td>
+                <td>
+                    <form action="" method="POST">
+                        <input type="hidden" name="remove_book_id" value="{{ entry[0] }}"/>
                         <button type="submit" class="btn">Remove</button>
-                    </td>
-                </form> 
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

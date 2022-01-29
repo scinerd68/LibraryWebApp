@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
+    <div class="book-header">{{ book.title.title() }}</div>
     <div class="book-container">
         <div class="image-container">
             <img class="book-image-individual" src="{{ image_file }}">
@@ -18,11 +19,13 @@
             {% endif %}
         </div>
         <div class="info-container">
-            <h1 style="font-size: 50px;">{{ book.title.title() }}</h1>
-            <div>Category: {{ book.category }}</div>
-            <div>Authors: {{ ', '.join(authors) }}</div>
-            <div>Quantity: {{ book.current_quantity }} / {{ book.max_quantity }}</div>
-            <p>Description: {{ book.description }}</p>
+            <h1 class="book-title">{{ book.title.title() }}</h1>
+            <div class="book-authors">by {{ ', '.join(authors) }}</div>
+            <div style="font-size: 18px;font-family: Georgia, serif;">
+                <div><b>Category:</b> {{ book.category }}</div>
+                <div><b>Quantity:</b> {{ book.current_quantity }} / {{ book.max_quantity }}</div>
+                <div><i>{{ book.description }}</i></div>
+            </div>
         </div>
     </div> 
 </div>

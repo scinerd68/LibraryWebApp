@@ -18,7 +18,7 @@ def borrow():
         if not user.activated:
             flash("Need to activate account to borrow books. Come to library to request activation.")
             return redirect(url_for("main.home"))
-        requesting_id = [book.book_id for book in BorrowHistory.query.all() if book.status=="requesting" or book.status=="borrowing"]
+        requesting_id = [book.book_id for book in BorrowHistory.query.filter_by(user_id=user.id).all() if book.status=="requesting" or book.status=="borrowing"]
         register_book_id = request.form.get('book_id')
         if register_book_id != None:
             if len(requesting_id) == 3:
@@ -40,7 +40,7 @@ def borrow():
                 flash(f"Book has already been requested or borrowed.", "danger")
         else:
             remove_book_id = request.form.get('remove_book_id')
-            num_book_delete = BorrowHistory.query.filter_by(book_id=remove_book_id).filter_by(status="requesting").delete()
+            num_book_delete = BorrowHistory.query.filter_by(user_id=user.id).filter_by(book_id=remove_book_id).filter_by(status="requesting").delete()
             if num_book_delete > 0:
                 book = Book.query.get(remove_book_id)
                 book.current_quantity += 1

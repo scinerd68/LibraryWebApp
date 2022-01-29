@@ -6,10 +6,10 @@
             <img class="rounded-circle account-img" src="{{ url_for('static', filename='image/profile.jpg') }}">
             <div class="media-body">
                 <h2 class="account-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
-                <hr>
-                <p class="text-secondary">Username: {{ current_user.username }}</p>
-                <p class="text-secondary">Email: {{ current_user.email }}</p>
-                <p>Balance: {{ current_user.balance }}</p>
+                <hr style="margin-top: 5px;">
+                <div class="text-secondary">Username: {{ current_user.username }}</div>
+                <div class="text-secondary">Email: {{ current_user.email }}</div>
+                <div>Balance: {{ current_user.balance }}</div>
             </div>
         </div>
         <hr>
@@ -19,10 +19,13 @@
                 <div class="book-container">
                     <img class="book-image-individual" src="{{ url_for('static', filename='image/' + book.image) }}">
                     <div class="info-container">
-                        <h1 style="font-size: 50px;"> {{ book.title.title() }} </h1>
-                        <div> Category: {{ book.category }} </div>
-                        <div> Authors:  {{ ''.join(authors) }}</div>
-                        <p> Description: {{ book.description }}</p>
+                        <h1 class="book-title">{{ book.title.title() }}</h1>
+                        <div class="book-authors">by {{ ', '.join(authors) }}</div>
+                        <div style="font-size: 18px;font-family: Georgia, serif;">
+                            <div><b>Category:</b> {{ book.category }}</div>
+                            <div><b>Quantity:</b> {{ book.current_quantity }} / {{ book.max_quantity }}</div>
+                            <div><i>{{ book.description }}</i></div>
+                        </div>
                     </div>
                 </div> 
             {% else %}
