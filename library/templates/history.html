@@ -14,11 +14,12 @@
                 <th>Status</th>
             </tr>
         </thead>
-        {% for entry in table %}
+        
         <tbody>
             {% if table|length == 0 %}
-            <tr><td colspan="4" style="text-align: center;font-size: large;">NO DATA</td></tr>
+            <tr><td colspan="6" style="text-align: center;font-size: large;">NO DATA</td></tr>
             {% endif %}
+            {% for entry in table %}
             <tr>
                 <td>{{ entry[0] }}</td>
                 <td>{{ entry[1].title() }}</td>
@@ -27,8 +28,8 @@
                 <td>{{ entry[4] }}</td>
                 <td>{{ entry[5].title() }}</td>
             </tr>
-        </tbody>
-        {% endfor %}
+            {% endfor %}
+        </tbody>  
     </table>
 </div>
 {% endblock %}
