@@ -6,7 +6,9 @@
         <div class="image-container">
             <img class="book-image-individual" src="{{ image_file }}">
             {% if session.get('account_type') == 'librarian' %}
-            <a href="{{ url_for('books.update_book', book_id=book.id) }}" class="btn btn-success">Update</a>
+            <a href="{{ url_for('books.update_book', book_id=book.id) }}" class="btn btn-success update-btn">
+                Update
+            </a>
             {% else %}
             <form action="/borrow" method="POST">
                 <input type="hidden" name="book_id" value="{{ book.id }}" />
@@ -22,9 +24,9 @@
             <h1 class="book-title">{{ book.title.title() }}</h1>
             <div class="book-authors">by {{ ', '.join(authors) }}</div>
             <div style="font-size: 18px;font-family: Georgia, serif;">
-                <div><b>Category:</b> {{ book.category }}</div>
+                <div><b>Category:</b> {{ book.category.title() }}</div>
                 <div><b>Quantity:</b> {{ book.current_quantity }} / {{ book.max_quantity }}</div>
-                <div><i>{{ book.description }}</i></div>
+                <div><i>{{ book.description.capitalize() }}</i></div>
             </div>
         </div>
     </div> 

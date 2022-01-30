@@ -12,20 +12,22 @@ books = Blueprint('books', __name__)
 @role_required("librarian")
 def insert():
     form = InsertBookForm()
+    form.remove_quantity.data = 0
     
     if form.validate_on_submit():
-        book = Book(title=form.title.data, category=form.category.data, current_quantity=form.added_quantity.data,
-            max_quantity=form.added_quantity.data, description=form.description.data)
+        print("Inside")
+        book = Book(title=form.title.data.strip().lower(), category=form.category.data.strip().lower(), current_quantity=form.added_quantity.data,
+            max_quantity=form.added_quantity.data, description=form.description.data.strip().lower())
         
         existed_authors_name = [author.name for author in Author.query.all()]
         for author in form.authors:
             author_name = author.data.strip().lower()
             if author_name != '':
                 if author_name not in existed_authors_name:
-                    author = Author(name=author.data)
+                    author = Author(name=author_name)
                     book.authors.append(author)
                 else:
-                    author = Author.query.filter_by(name=author_name)
+                    author = Author.query.filter_by(name=author_name).first()
                     book.authors.append(author)
         if form.image.data:
             image_file = save_image(form.image.data)
@@ -41,7 +43,7 @@ def insert():
 @books.route("/book/<book_id>")
 def book(book_id):
     book = Book.query.get_or_404(book_id)
-    authors = [author.name for author in book.authors]
+    authors = [author.name.title() for author in book.authors]
     image_file = url_for('static', filename='image/' + book.image)
     return render_template("book.html", book=book, image_file=image_file, authors=authors)
 
@@ -60,9 +62,9 @@ def update_book(book_id):
             book.current_quantity -= form.remove_quantity.data
             book.max_quantity -= form.remove_quantity.data
 
-        book.title = form.title.data
-        book.category = form.category.data
-        book.description = form.description.data
+        book.title = form.title.data.strip().lower()
+        book.category = form.category.data.strip().lower()
+        book.description = form.description.data.strip().lower()
         book.current_quantity += form.added_quantity.data
         book.max_quantity += form.added_quantity.data
 
@@ -72,10 +74,10 @@ def update_book(book_id):
             author_name = author.data.strip().lower()
             if author_name != '':
                 if author_name not in existed_authors_name:
-                    author = Author(name=author.data)
+                    author = Author(name=author_name)
                     book.authors.append(author)
                 else:
-                    author = Author.query.filter_by(name=author_name)
+                    author = Author.query.filter_by(name=author_name).first()
                     book.authors.append(author)
         if form.image.data:
             image_file = save_image(form.image.data)
@@ -85,9 +87,9 @@ def update_book(book_id):
         flash(f"Book updated!", "success")
         return redirect(url_for("books.book", book_id=book.id))
         
-    form.title.data = book.title
-    form.category.data = book.category
-    form.description.data = book.description
+    form.title.data = book.title.title()
+    form.category.data = book.category.title()
+    form.description.data = book.description.capitalize()
     for author_field, author in zip(form.authors, book.authors):
         author_field.data = author.name.strip().title()
     form.added_quantity.data = 0

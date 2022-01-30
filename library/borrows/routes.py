@@ -22,7 +22,7 @@ def borrow():
         register_book_id = request.form.get('book_id')
         if register_book_id != None:
             if len(requesting_id) == 3:
-                flash("Can only borrow maximum 3 books a time.")
+                flash("Can only borrow maximum 3 books a time.", "info")
                 return redirect(url_for("main.home"))
             register_book_id = int(register_book_id)
             if register_book_id not in requesting_id:
