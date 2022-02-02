@@ -45,7 +45,7 @@ def statistics():
     most_borrowed_books = [(Book.query.get(id[0]), book_counter[id]) for id in sorted_book_counter[:4]]
 
     not_bororwed_books = list(set(all_books) - set(all_books_borrowed))
-    least_borrowed_books = [(Book.query.get(id[0]), 0) for id in not_bororwed_books]
+    least_borrowed_books = [(Book.query.get(id[0]), 0) for id in not_bororwed_books[:4]]
     if len(least_borrowed_books) < 4:
         num_missing_item = 4 - len(least_borrowed_books)
         least_borrowed_books += [(Book.query.get(id[0]), book_counter[id]) for id in sorted_book_counter[::-1][:num_missing_item]]

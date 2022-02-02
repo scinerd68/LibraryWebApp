@@ -5,32 +5,40 @@
     <h1 class="stats-header">Most popular last 30 days</h1>
     <div style="border: 0.3px solid;"></div>
     <div>
-        {% for book in most_borrowed_books %}
-        <div class="grid-item">
-            <a href="{{ url_for('books.book', book_id=book[0].id) }}">
-                <img class="book-image" src="{{ url_for('static', filename='image/' + book[0].image) }}">
-                <span class="caption"> {{ book[0].title.title() }} </span>
-            </a>
-            <div>No. Borrowed Turns: {{ book[1] }}</div>
-        </div>
-        {% endfor %}
+        {% if total_borrowed_turns == 0 %}
+        <div class="no-data-stats"> No data yet</div>
+        {% else %}
+            {% for book in most_borrowed_books %}
+            <div class="grid-item">
+                <a href="{{ url_for('books.book', book_id=book[0].id) }}">
+                    <img class="book-image" src="{{ url_for('static', filename='image/' + book[0].image) }}">
+                    <span class="caption"> {{ book[0].title.title() }} </span>
+                </a>
+                <div>No. Borrowed Turns: {{ book[1] }}</div>
+            </div>
+            {% endfor %}
+        {% endif %}
     </div>
     <h1 class="stats-header">Least popular last 30 days</h1>
     <div style="border: 0.3px solid;"></div>
     <div>
-        {% for book in least_borrowed_books %}
-        <div class="grid-item">
-            <a href="{{ url_for('books.book', book_id=book[0].id) }}">
-                <img class="book-image" src="{{ url_for('static', filename='image/' + book[0].image) }}">
-                <span class="caption"> {{ book[0].title.title() }} </span>
-            </a>
-            <div>No. Borrowed Turns: {{ book[1] }}</div>
-        </div>
-        {% endfor %}
+        {% if total_borrowed_turns == 0 %}
+        <div class="no-data-stats"> No data yet</div>
+        {% else %}
+            {% for book in least_borrowed_books %}
+            <div class="grid-item">
+                <a href="{{ url_for('books.book', book_id=book[0].id) }}">
+                    <img class="book-image" src="{{ url_for('static', filename='image/' + book[0].image) }}">
+                    <span class="caption"> {{ book[0].title.title() }} </span>
+                </a>
+                <div>No. Borrowed Turns: {{ book[1] }}</div>
+            </div>
+            {% endfor %}
+        {% endif %}
     </div>
     <h1 class="stats-header">Category count last 30 days</h1>
     <div style="border: 0.3px solid;"></div>
-    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+    <canvas id="myChart" style="width:100%;max-width:600px;margin: 0 auto;"></canvas>
     <script>
         var xValues = {{ category|tojson }};
         var yValues = {{ category_count|tojson }};

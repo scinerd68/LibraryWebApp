@@ -136,7 +136,7 @@ div.grid-item:hover {
 }
 
 .stats-header {
-  font-family:'Sergei UI', sans-serif;
+  font-family: Georgia, serif;
   font-size: 30px;
 }
 
@@ -188,4 +188,11 @@ div.grid-item:hover {
 .update-btn {
   max-width: 80px;
   margin: 0 auto;
+}
+
+.no-data-stats {
+  max-width: 200px;
+  margin: 50px auto;
+  font-size: 30px;
+  font-style: italic;
 }
