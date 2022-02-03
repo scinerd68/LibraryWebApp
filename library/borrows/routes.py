@@ -76,7 +76,13 @@ def lend():
     if request.method == "POST":
         if 'search_form' in request.form:
             user_id = request.form.get('user_id')
-            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id)
+            try:
+                user_id = int(user_id)
+            except ValueError:
+                flash("User ID must be an integer", "info")
+                return render_template("lend.html", table=table, user=None, title="Lend Books")
+            
+            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()  
             for entry in borrow_entries:
                 book_id = entry.book_id
                 book = Book.query.get(book_id)
