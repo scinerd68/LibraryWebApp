@@ -33,7 +33,6 @@ def borrow():
                     borrow = BorrowHistory(book_id=register_book_id, user_id=user.id, 
                                         register_date=datetime.now(), status="requesting")
                     db.session.add(borrow)
-                    book.current_quantity -= 1
                     db.session.commit()
                     flash(f"Book has been requested successfully. Please return book after 14 days.", "success")
             else:
@@ -43,7 +42,6 @@ def borrow():
             num_book_delete = BorrowHistory.query.filter_by(user_id=user.id).filter_by(book_id=remove_book_id).filter_by(status="requesting").delete()
             if num_book_delete > 0:
                 book = Book.query.get(remove_book_id)
-                book.current_quantity += 1
             db.session.commit()
             flash(f"Undo request successfully", "success")
 
