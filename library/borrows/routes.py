@@ -81,23 +81,6 @@ def lend():
             except ValueError:
                 flash("User ID must be an integer", "info")
                 return render_template("lend.html", table=table, user=None, title="Lend Books")
-            
-            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()  
-            for entry in borrow_entries:
-                book_id = entry.book_id
-                book = Book.query.get(book_id)
-
-                borrow_date_str = None
-                return_date_str = None
-                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
-                if entry.borrow_date is not None:
-                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
-                if entry.return_date is not None:
-                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
-                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
-            
-            table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
-            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
 
         elif 'accept_form' in request.form:
             accept_book_id = request.form.get('accept_book_id')
@@ -109,21 +92,6 @@ def lend():
             borrow_history.borrow_date = datetime.now()
             borrow_history.status = "borrowing"
             db.session.commit()
-            
-            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
-            for entry in borrow_entries:
-                book_id = entry.book_id
-                book = Book.query.get(book_id)
-                borrow_date_str = None
-                return_date_str = None
-                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
-                if entry.borrow_date is not None:
-                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
-                if entry.return_date is not None:
-                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
-                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
-            table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
-            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
 
         elif 'decline_form' in request.form:
             decline_book_id = request.form.get('decline_book_id')
@@ -138,20 +106,20 @@ def lend():
             book.current_quantity += 1
             db.session.commit()
             
-            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
-            for entry in borrow_entries:
-                book_id = entry.book_id
-                book = Book.query.get(book_id)
-                borrow_date_str = None
-                return_date_str = None
-                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
-                if entry.borrow_date is not None:
-                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
-                if entry.return_date is not None:
-                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
-                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
-            table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
-            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
+        borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
+        for entry in borrow_entries:
+            book_id = entry.book_id
+            book = Book.query.get(book_id)
+            borrow_date_str = None
+            return_date_str = None
+            register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
+            if entry.borrow_date is not None:
+                borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
+            if entry.return_date is not None:
+                return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
+            table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
+        table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
+        return render_template("lend.html", table=table, user=user_id, title="Lend Books")
     
     return render_template("lend.html", table=table, user=user_id, title="Lend Books")
 
@@ -175,7 +143,7 @@ def borrow_history():
             return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
         table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
 
-    SORT_ORDER = {"requesting" : 2, "borrowing" : 1, "returned" : 0}
+    SORT_ORDER = {"requesting" : 3, "borrowing" : 2, "returned" : 1, "declined" : 0}
     table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
     return render_template("history.html", table=table, title="Borrow History")
 
