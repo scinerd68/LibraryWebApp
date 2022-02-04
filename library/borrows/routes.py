@@ -70,7 +70,7 @@ def borrow():
 @borrows.route("/lend", methods=["GET", "POST"])
 @role_required("librarian")
 def lend():
-    SORT_ORDER = {"requesting" : 2, "borrowing" : 1, "returned" : 0}
+    SORT_ORDER = {"requesting" : 3, "borrowing" : 2, "returned" : 1, "declined" : 0}
     table = []
     user_id = None
     if request.method == "POST":
@@ -108,6 +108,34 @@ def lend():
             borrow_history.lender_id = current_user.id
             borrow_history.borrow_date = datetime.now()
             borrow_history.status = "borrowing"
+            db.session.commit()
+            
+            borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
+            for entry in borrow_entries:
+                book_id = entry.book_id
+                book = Book.query.get(book_id)
+                borrow_date_str = None
+                return_date_str = None
+                register_date_str = entry.register_date.strftime("%d/%m/%Y %H:%M")
+                if entry.borrow_date is not None:
+                    borrow_date_str = entry.borrow_date.strftime("%d/%m/%Y %H:%M")
+                if entry.return_date is not None:
+                    return_date_str = entry.return_date.strftime("%d/%m/%Y %H:%M")
+                table.append((book_id, book.title, register_date_str, borrow_date_str, return_date_str, entry.status))
+            table.sort(key=lambda entry: (SORT_ORDER[entry[5]], entry[2]), reverse=True)
+            return render_template("lend.html", table=table, user=user_id, title="Lend Books")
+
+        elif 'decline_form' in request.form:
+            decline_book_id = request.form.get('decline_book_id')
+            user_id = request.form.get('user_id')
+            borrow_history = BorrowHistory.query.filter_by(user_id=user_id).filter_by(book_id=decline_book_id).filter_by(status="requesting").first()
+            if borrow_history is None:
+                return redirect(url_for("main.home"))
+            borrow_history.lender_id = current_user.id
+            borrow_history.borrow_date = datetime.now()
+            borrow_history.status = "declined"
+            book = Book.query.get(decline_book_id)
+            book.current_quantity += 1
             db.session.commit()
             
             borrow_entries = BorrowHistory.query.filter_by(user_id=user_id).all()
