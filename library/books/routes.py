@@ -15,7 +15,6 @@ def insert():
     form.remove_quantity.data = 0
     
     if form.validate_on_submit():
-        print("Inside")
         book = Book(title=form.title.data.strip().lower(), category=form.category.data.strip().lower(), current_quantity=form.added_quantity.data,
             max_quantity=form.added_quantity.data, description=form.description.data.strip().lower())
         

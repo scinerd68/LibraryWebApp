@@ -16,7 +16,6 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         if form.librarian.data == True:
-            print("librarian")
             user = Librarian.query.filter_by(email=form.email.data).first()
             session['account_type'] = 'librarian'
         else:
@@ -24,7 +23,6 @@ def login():
             session['account_type'] = 'user'
         if user is not None and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
-            print("User's status:", user.is_authenticated)
             next_page = request.args.get("next")
             if next_page:
                 return redirect(next_page)
