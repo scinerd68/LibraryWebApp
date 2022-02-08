@@ -48,7 +48,7 @@
                         <h1 class="book-title">{{ book.title.title() }}</h1>
                         <div class="book-authors">by {{ ', '.join(authors) }}</div>
                         <div style="font-size: 18px;font-family: Georgia, serif;">
-                            <div><b>Category:</b> {{ book.category }}</div>
+                            <div><b>Category:</b> {{ book.category.title() }}</div>
                             <div><b>Quantity:</b> {{ book.current_quantity }} / {{ book.max_quantity }}</div>
                             <div><i>{{ book.description }}</i></div>
                         </div>

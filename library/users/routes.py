@@ -91,7 +91,7 @@ def user_account():
                 count_book = Counter(borrow_history)
                 most_borrowed_book_id = max(count_book, key=count_book.get)[0]
                 book = Book.query.get(most_borrowed_book_id)
-                authors = [author.name for author in book.authors]
+                authors = [author.name.title() for author in book.authors]
             else: 
                 book = None
                 authors = None
@@ -109,7 +109,7 @@ def user_account():
                 count_book = Counter(borrow_history)
                 most_borrowed_book_id = max(count_book, key=count_book.get)[0]
                 book = Book.query.get(most_borrowed_book_id)
-                authors = [author.name for author in book.authors]
+                authors = [author.name.title() for author in book.authors]
             else: 
                 book = None
                 authors = None
@@ -126,7 +126,7 @@ def user_account():
                 count_book = Counter(borrow_history)
                 most_borrowed_book_id = max(count_book, key=count_book.get)[0]
                 book = Book.query.get(most_borrowed_book_id)
-                authors = [author.name for author in book.authors]
+                authors = [author.name.title() for author in book.authors]
             else: 
                 book = None
                 authors = None
@@ -143,7 +143,7 @@ def user_account():
                 count_book = Counter(borrow_history)
                 most_borrowed_book_id = max(count_book, key=count_book.get)[0]
                 book = Book.query.get(most_borrowed_book_id)
-                authors = [author.name for author in book.authors]
+                authors = [author.name.title() for author in book.authors]
             else: 
                 book = None
                 authors = None
