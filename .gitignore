@@ -2,3 +2,4 @@ library_venv/
 __pycache__/
 .vscode
 TODO.txt
+populate_db.py
