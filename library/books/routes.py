@@ -11,6 +11,7 @@ books = Blueprint('books', __name__)
 @books.route("/insert", methods=["GET", "POST"])
 @role_required("librarian")
 def insert():
+    """ Route to insert books """
     form = InsertBookForm()
     form.remove_quantity.data = 0
     
@@ -41,6 +42,7 @@ def insert():
 
 @books.route("/book/<book_id>")
 def book(book_id):
+    """ Books routes"""
     book = Book.query.get_or_404(book_id)
     authors = [author.name.title() for author in book.authors]
     image_file = url_for('static', filename='image/' + book.image)
@@ -50,6 +52,7 @@ def book(book_id):
 @books.route("/book/<book_id>/update", methods=["GET", "POST"])
 @role_required("librarian")
 def update_book(book_id):
+    """ Route to update book"""
     book = Book.query.get_or_404(book_id)
     form = InsertBookForm()
     

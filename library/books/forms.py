@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, NumberRange, Length
 
 
 class InsertBookForm(FlaskForm):
+    """ Form used for insert book and update book in database """
     title = StringField("Title", validators=[DataRequired(), Length(min=1, max=100)])
     category = StringField("Category", validators=[DataRequired(), Length(min=1, max=100)])
     authors = FieldList(StringField("Author"), min_entries=3, max_entries=3)

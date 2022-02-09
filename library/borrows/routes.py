@@ -12,6 +12,7 @@ borrows = Blueprint('borrows', __name__)
 @borrows.route("/borrow", methods=["GET", "POST"])
 @role_required("user")
 def borrow():
+    """ Route to handle request book by user """
     user = current_user
     
     if request.method == "POST":
@@ -70,6 +71,7 @@ def borrow():
 @borrows.route("/lend", methods=["GET", "POST"])
 @role_required("librarian")
 def lend():
+    """ Route to lend book to user """
     SORT_ORDER = {"requesting" : 3, "borrowing" : 2, "returned" : 1, "declined" : 0}
     table = []
     user_id = None
@@ -127,6 +129,7 @@ def lend():
 @borrows.route("/history")
 @role_required("user")
 def borrow_history():
+    """ Route to display user' borrow history """
     user = current_user
     borrow_entries = BorrowHistory.query.filter_by(user_id=user.id).all()
     table = []
@@ -151,6 +154,7 @@ def borrow_history():
 @borrows.route("/return", methods=["POST"])
 @role_required("librarian")
 def return_book():
+    """ Route to return book to user """
     form = ReturnBookForm()
     if request.method == "POST":
         if 'return_form' in request.form:

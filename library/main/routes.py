@@ -10,11 +10,13 @@ main = Blueprint('main', __name__)
 @main.route("/", methods=["GET", "POST"])
 @main.route("/home", methods=["GET", "POST"])
 def home():
+    """ Home route """
     return render_template("home.html")
 
 
 @main.route("/search", methods=["GET", "POST"])
 def search():
+    """ Display search result route"""
     table = []
     if request.method == "POST":
         book_name = request.form.get('book_name')
@@ -34,6 +36,7 @@ def search():
 @main.route("/statistics")
 @role_required("librarian")
 def statistics():
+    """ Statistics route """
     all_books = Book.query.with_entities(Book.id).all() 
     all_books_borrowed = BorrowHistory.query.with_entities(BorrowHistory.book_id)\
               .filter(BorrowHistory.register_date > (datetime.now() - timedelta(days=30))).all()

@@ -11,6 +11,7 @@ users = Blueprint('users', __name__)
 
 @users.route("/login", methods=["GET", "POST"])
 def login():
+    """ Login route """
     if current_user.is_authenticated:
         return redirect(url_for("main.home"))
     form = LoginForm()
@@ -37,6 +38,7 @@ def login():
 
 @users.route("/register", methods=["GET", "POST"])
 def register():
+    """ Register route """
     if current_user.is_authenticated:
         return redirect(url_for("main.home"))
     form = RegistrationForm()
@@ -54,6 +56,7 @@ def register():
 
 @users.route("/logout")
 def logout():
+    """ Logout user"""
     logout_user()
     session.clear()
     return redirect(url_for("main.home"))
@@ -62,6 +65,7 @@ def logout():
 @users.route("/account")
 @role_required("user")
 def account():
+    """ Account route for user to view their info """
     borrow_history = BorrowHistory.query.with_entities(BorrowHistory.book_id).\
                     filter_by(user_id=current_user.id).all()
     if len(borrow_history) != 0:
@@ -79,6 +83,7 @@ def account():
 @users.route("/user", methods={"GET", "POST"})
 @role_required("librarian")
 def user_account():
+    """ Route for librarian to manage user """
     book = None
     user = None
     if request.method == "POST":

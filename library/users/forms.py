@@ -5,6 +5,7 @@ from library.models import User
 
 
 class RegistrationForm(FlaskForm):
+    """ Register form """
     username = StringField("Username",
                           validators=[DataRequired(), Length(min=2, max=20)])
     first_name = StringField("First Name", validators=[DataRequired()])
@@ -30,6 +31,7 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
+    """ Login form """
     email = StringField("Email",
                        validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])

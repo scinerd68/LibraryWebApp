@@ -3,6 +3,7 @@ from wtforms import StringField, SubmitField, IntegerField, DateTimeField, Hidde
 
 
 class ReturnBookForm(FlaskForm):
+    """ Form used to return books """
     book_id = HiddenField()
     user_id = HiddenField()
     title = StringField("Title", render_kw={'readonly': True})
