@@ -89,6 +89,11 @@ def user_account():
     if request.method == "POST":
         if 'search_form' in request.form:
             user_id = request.form.get('user_id')
+            try:
+                user_id = int(user_id)
+            except ValueError:
+                flash("User ID must be an integer", "info")
+                return render_template("user.html", user=None, authors=None, book=None)
             user = User.query.get(user_id)
             borrow_history = BorrowHistory.query.with_entities(BorrowHistory.book_id).\
                     filter_by(user_id=user_id).all()
